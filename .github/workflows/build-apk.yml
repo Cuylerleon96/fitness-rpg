@@ -79,6 +79,12 @@ jobs:
           echo "--- Editor settings ---"
           cat ~/.config/godot/editor_settings-4.3.tres
 
+      - name: Patch export_presets keystore path
+        run: |
+          sed -i "s|keystore/debug=.*|keystore/debug=\"$HOME/.local/share/godot/keystores/debug.keystore\"|" export_presets.cfg
+          echo "--- export_presets.cfg keystore ---"
+          grep "keystore" export_presets.cfg
+
       - name: Import project
         run: |
           cd ${{ github.workspace }}
