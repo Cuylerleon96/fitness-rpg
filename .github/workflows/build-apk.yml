@@ -32,15 +32,14 @@ jobs:
         run: |
           sdkmanager "platform-tools" "platforms;android-34" "build-tools;34.0.0"
           yes | sdkmanager --licenses
-
-      - name: Verify SDK paths
-        run: |
-          echo "JAVA_HOME=$JAVA_HOME"
-          echo "ANDROID_HOME=$ANDROID_HOME"
-          ls "$ANDROID_HOME/platform-tools/adb" && echo "ADB OK"
-          ls "$ANDROID_HOME/build-tools/34.0.0/aapt2" && echo "aapt2 OK"
-          ls "$ANDROID_HOME/build-tools/34.0.0/apksigner" && echo "apksigner OK"
-          ls "$JAVA_HOME/bin/java" && echo "Java OK"
+          echo "=== Verify ==="
+          ls -la "$ANDROID_HOME/platform-tools/adb"
+          ls -la "$ANDROID_HOME/build-tools/34.0.0/aapt2"
+          ls -la "$ANDROID_HOME/build-tools/34.0.0/apksigner"
+          ls -la "$ANDROID_HOME/build-tools/34.0.0/zipalign"
+          ls -la "$ANDROID_HOME/platforms/android-34/android.jar"
+          ls -la "$JAVA_HOME/bin/java"
+          ls -la "$JAVA_HOME/bin/javac"
 
       - name: Download Godot
         run: |
@@ -58,7 +57,8 @@ jobs:
           wget -q "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-stable/Godot_v${GODOT_VERSION}-stable_export_templates.tpz" -O templates.tpz
           unzip -o templates.tpz
           mv templates/* . 2>/dev/null || true
-          ls android_debug.apk && echo "Template OK"
+          ls -la android_debug.apk
+          echo "Template size: $(du -h android_debug.apk | cut -f1)"
 
       - name: Create debug keystore
         run: |
@@ -69,35 +69,47 @@ jobs:
             -keyalg RSA -keysize 2048 -validity 10000 \
             -storepass android -keypass android \
             -dname "CN=Debug, OU=Debug, O=Debug, L=Debug, S=Debug, C=US"
+          echo "Keystore created:"
+          ls -la ~/.local/share/godot/keystores/debug.keystore
 
       - name: Configure editor settings
         run: |
           mkdir -p ~/.config/godot
-          printf '[gd_resource type="EditorSettings" format=3]\n\n[resource]\nexport/android/java_sdk_path = "%s"\nexport/android/android_sdk_path = "%s"\nexport/android/debug_keystore = "%s"\nexport/android/debug_keystore_user = "androiddebugkey"\nexport/android/debug_keystore_pass = "android"\n' \
-            "$JAVA_HOME" "$ANDROID_HOME" "$HOME/.local/share/godot/keystores/debug.keystore" \
+          printf '%s\n' \
+            '[gd_resource type="EditorSettings" format=3]' \
+            '' \
+            '[resource]' \
+            "export/android/java_sdk_path = \"$JAVA_HOME\"" \
+            "export/android/android_sdk_path = \"$ANDROID_HOME\"" \
+            "export/android/debug_keystore = \"$HOME/.local/share/godot/keystores/debug.keystore\"" \
+            'export/android/debug_keystore_user = "androiddebugkey"' \
+            'export/android/debug_keystore_pass = "android"' \
             > ~/.config/godot/editor_settings-4.3.tres
           echo "--- Editor settings ---"
           cat ~/.config/godot/editor_settings-4.3.tres
 
-      - name: Patch export_presets keystore path
+      - name: Patch export_presets for CI
         run: |
-          sed -i "s|keystore/debug=.*|keystore/debug=\"$HOME/.local/share/godot/keystores/debug.keystore\"|" export_presets.cfg
-          echo "--- export_presets.cfg keystore ---"
-          grep "keystore" export_presets.cfg
+          sed -i "s|keystore/debug=.*|keystore/debug=\"${HOME}/.local/share/godot/keystores/debug.keystore\"|" export_presets.cfg
+          echo "--- export_presets.cfg ---"
+          cat export_presets.cfg
 
       - name: Import project
         run: |
           cd ${{ github.workspace }}
-          Godot_v${GODOT_VERSION}-stable_linux.x86_64 --headless --import 2>&1 || true
+          Godot_v${GODOT_VERSION}-stable_linux.x86_64 --headless --import --verbose 2>&1 | tail -20
 
-      - name: Export APK
+      - name: Export APK (verbose)
         run: |
           cd ${{ github.workspace }}
           mkdir -p export
-          Godot_v${GODOT_VERSION}-stable_linux.x86_64 --headless --export-debug "Android" export/${EXPORT_NAME}.apk 2>&1
+          Godot_v${GODOT_VERSION}-stable_linux.x86_64 --headless --verbose --export-debug "Android" export/${EXPORT_NAME}.apk 2>&1
+          echo "---"
+          ls -la export/${EXPORT_NAME}.apk 2>/dev/null && echo "APK EXPORTED!" || echo "APK NOT FOUND"
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
+        if: success()
         with:
           name: fitness-rpg-android
           path: export/fitness-rpg.apk
