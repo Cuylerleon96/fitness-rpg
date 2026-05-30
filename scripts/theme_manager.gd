@@ -4,7 +4,7 @@ extends Node
 
 signal theme_changed(theme_name: String)
 
-enum Theme { DARK_RPG, NEON_CYBERPUNK, CLEAN_GAME, MINIMAL_WARRIOR }
+enum AppTheme { DARK_RPG, NEON_CYBERPUNK, CLEAN_GAME, MINIMAL_WARRIOR }
 
 var themes: Dictionary = {
 	"dark_rpg": {
