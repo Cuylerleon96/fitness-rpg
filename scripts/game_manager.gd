@@ -177,29 +177,86 @@ func _check_achievements():
 
 # ── Navigation ─────────────────────────────────────────────────────
 
+var _transition_overlay: ColorRect = null
+var _is_transitioning: bool = false
+
 func go_to_scene(scene_path: String):
+	# Legacy direct transition (kept for compatibility)
 	get_tree().change_scene_to_file(scene_path)
 
+func go_to_scene_with_transition(scene_path: String):
+	if _is_transitioning:
+		return
+	_is_transitioning = true
+	
+	# Get the current scene root to attach the overlay
+	var current_scene = get_tree().current_scene
+	if current_scene == null:
+		get_tree().change_scene_to_file(scene_path)
+		_is_transitioning = false
+		return
+	
+	# Create black overlay
+	_transition_overlay = ColorRect.new()
+	_transition_overlay.color = Color(0, 0, 0, 0)
+	_transition_overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_transition_overlay.z_index = 9999
+	_transition_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	current_scene.add_child(_transition_overlay)
+	
+	# Fade to black
+	var tween = _transition_overlay.create_tween()
+	tween.set_ease(Tween.EASE_IN)
+	tween.set_trans(Tween.TRANS_QUAD)
+	tween.tween_property(_transition_overlay, "color:a", 1.0, 0.3)
+	await tween.finished
+	
+	# Change scene
+	get_tree().change_scene_to_file(scene_path)
+	
+	# Wait one frame for new scene to load
+	await get_tree().process_frame
+	
+	# Create overlay on new scene and fade out
+	var new_scene = get_tree().current_scene
+	if new_scene != null:
+		_transition_overlay = ColorRect.new()
+		_transition_overlay.color = Color(0, 0, 0, 1)
+		_transition_overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
+		_transition_overlay.z_index = 9999
+		_transition_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		new_scene.add_child(_transition_overlay)
+		
+		var tween2 = _transition_overlay.create_tween()
+		tween2.set_ease(Tween.EASE_OUT)
+		tween2.set_trans(Tween.TRANS_QUAD)
+		tween2.tween_property(_transition_overlay, "color:a", 0.0, 0.3)
+		await tween2.finished
+		
+		if is_instance_valid(_transition_overlay):
+			_transition_overlay.queue_free()
+	
+	_is_transitioning = false
+
 func go_to_hub():
-	go_to_scene("res://scenes/hub.tscn")
+	go_to_scene_with_transition("res://scenes/hub.tscn")
 
 func go_to_workout(routine_id: String):
-	# Store routine_id in a temporary var for the workout scene to read
 	_pending_routine_id = routine_id
-	go_to_scene("res://scenes/workout.tscn")
+	go_to_scene_with_transition("res://scenes/workout.tscn")
 
 func go_to_calendar():
-	go_to_scene("res://scenes/calendar.tscn")
+	go_to_scene_with_transition("res://scenes/calendar.tscn")
 
 func go_to_progress():
-	go_to_scene("res://scenes/progress.tscn")
+	go_to_scene_with_transition("res://scenes/progress.tscn")
 
 func go_to_chat():
-	go_to_scene("res://scenes/chat.tscn")
+	go_to_scene_with_transition("res://scenes/chat.tscn")
 
 func go_to_routine_detail(routine_id: String):
 	_pending_routine_detail_id = routine_id
-	go_to_scene("res://scenes/routine_detail.tscn")
+	go_to_scene_with_transition("res://scenes/routine_detail.tscn")
 
 var _pending_routine_id: String = ""
 var _pending_routine_detail_id: String = ""

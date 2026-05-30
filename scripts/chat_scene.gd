@@ -9,9 +9,13 @@ extends Control
 var is_waiting: bool = false
 
 func _ready():
-	bg.color = ThemeManager.get_color("background")
+	ThemeManager.apply_gradient_bg(bg)
+	ThemeManager.fix_scroll_container(scroll)
 	$TopBar/BackBtn.pressed.connect(func(): GameManager.go_to_hub())
 	$TopBar/Title.add_theme_color_override("font_color", ThemeManager.get_color("primary_accent"))
+	ThemeManager.apply_button($TopBar/BackBtn)
+	ThemeManager.apply_button(send_btn)
+	ThemeManager.apply_input(input_field)
 	send_btn.pressed.connect(_on_send)
 	input_field.text_submitted.connect(func(_text): _on_send())
 	AIClient.coach_response.connect(_on_coach_response)

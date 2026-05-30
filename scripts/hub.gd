@@ -22,11 +22,19 @@ extends Control
 @onready var calories_card = $ScrollContainer/VBox/CaloriesCard
 @onready var calories_label = $ScrollContainer/VBox/CaloriesCard/CaloriesLabel
 
+var _stored_level: int = 0
+var _toast_queue: Array = []
+
 func _ready():
 	_apply_theme()
 	ThemeManager.theme_changed.connect(_apply_theme)
 	GameManager.xp_gained.connect(_on_xp_gained)
+	GameManager.level_up.connect(_on_level_up)
+	GameManager.achievement_unlocked.connect(_on_achievement_unlocked)
 	_refresh()
+	
+	# Fix scroll container for mobile
+	ThemeManager.fix_scroll_container($ScrollContainer)
 	
 	# Button connections
 	$ScrollContainer/VBox/NavButtons/WorkoutBtn.pressed.connect(_on_workout)
@@ -44,15 +52,39 @@ func _ready():
 	
 	# Check daily reward on load
 	_check_daily_reward()
+	# Store initial level for level-up detection
+	_stored_level = GameManager.get_level_from_xp(GameManager.profile.get("total_xp", 0))
 
 func _apply_theme():
-	bg.color = ThemeManager.get_color("background")
+	ThemeManager.apply_gradient_bg(bg)
 	title_label.add_theme_color_override("font_color", ThemeManager.get_color("primary_accent"))
 	level_num.add_theme_color_override("font_color", ThemeManager.get_color("gold"))
 	rank_label.add_theme_color_override("font_color", ThemeManager.get_color("primary_accent"))
 	streak_num.add_theme_color_override("font_color", ThemeManager.get_color("fire"))
 	$ScrollContainer/VBox/StreakCard/StreakHBox/FireIcon.add_theme_font_size_override("font_size", 36)
 	$ScrollContainer/VBox/StreakCard/StreakHBox/StreakNum.add_theme_font_size_override("font_size", 36)
+	
+	# Apply card styles
+	ThemeManager.apply_card(streak_card)
+	ThemeManager.apply_card(boss_card)
+	ThemeManager.apply_card(quest_card)
+	ThemeManager.apply_card(challenge_card)
+	ThemeManager.apply_card(achievement_card)
+	ThemeManager.apply_card(calories_card)
+	
+	# Apply progress bar style
+	ThemeManager.apply_progress(xp_bar)
+	ThemeManager.apply_progress(challenge_progress_bar)
+	
+	# Apply button styles
+	ThemeManager.apply_button($ScrollContainer/VBox/NavButtons/WorkoutBtn)
+	ThemeManager.apply_button($ScrollContainer/VBox/NavButtons/CalendarBtn)
+	ThemeManager.apply_button($ScrollContainer/VBox/NavButtons/ProgressBtn)
+	ThemeManager.apply_button($ScrollContainer/VBox/NavButtons/ChatBtn)
+	ThemeManager.apply_button($ScrollContainer/VBox/NavButtons/CharacterBtn)
+	ThemeManager.apply_button($ScrollContainer/VBox/NavButtons/RoutinesBtn)
+	ThemeManager.apply_button($ScrollContainer/VBox/NavButtons/AchievementsBtn)
+	ThemeManager.apply_button($ScrollContainer/VBox/NavButtons/SettingsBtn)
 
 func _refresh():
 	GameManager.refresh()
@@ -167,6 +199,110 @@ func _on_daily_reward_claimed():
 
 func _on_xp_gained(amount: int):
 	_refresh()
+	# Show XP popup on level badge
+	ThemeManager.create_xp_popup(self, level_num.global_position, amount)
+
+func _on_level_up(new_level: int, rank: String):
+	_stored_level = new_level
+	_show_level_up_celebration(new_level)
+
+func _show_level_up_celebration(new_level: int):
+	# Fullscreen overlay
+	var overlay = ColorRect.new()
+	overlay.color = Color(0, 0, 0, 0.85)
+	overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
+	overlay.z_index = 500
+	overlay.mouse_filter = Control.MOUSE_FILTER_STOP
+	add_child(overlay)
+	
+	# Particle burst
+	ThemeManager.create_level_up_effect(overlay)
+	
+	# "LEVEL UP!" text
+	var title = Label.new()
+	title.text = "LEVEL UP!"
+	title.add_theme_font_size_override("font_size", 52)
+	title.add_theme_color_override("font_color", ThemeManager.get_color("gold"))
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title.set_anchors_preset(Control.PRESET_CENTER)
+	title.position = Vector2(size.x * 0.5 - 150, size.y * 0.35)
+	title.z_index = 501
+	overlay.add_child(title)
+	
+	# Level number with bounce
+	var lvl_label = Label.new()
+	lvl_label.text = str(new_level)
+	lvl_label.add_theme_font_size_override("font_size", 72)
+	lvl_label.add_theme_color_override("font_color", ThemeManager.get_color("primary_accent"))
+	lvl_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	lvl_label.set_anchors_preset(Control.PRESET_CENTER)
+	lvl_label.position = Vector2(size.x * 0.5 - 40, size.y * 0.5)
+	lvl_label.z_index = 501
+	overlay.add_child(lvl_label)
+	
+	# Animate: fade in overlay, bounce level number
+	overlay.modulate.a = 0.0
+	lvl_label.scale = Vector2(0.1, 0.1)
+	lvl_label.pivot_offset = lvl_label.size * 0.5
+	
+	var tween = create_tween()
+	tween.tween_property(overlay, "modulate:a", 1.0, 0.3)
+	tween.tween_property(lvl_label, "scale", Vector2(1.2, 1.2), 0.3).set_trans(Tween.TRANS_ELASTIC).set_ease(Tween.EASE_OUT)
+	tween.tween_property(lvl_label, "scale", Vector2(1.0, 1.0), 0.2)
+	tween.tween_interval(1.5)
+	tween.tween_property(overlay, "modulate:a", 0.0, 0.3)
+	tween.tween_callback(overlay.queue_free)
+
+# ── Achievement Toast ─────────────────────────────────────────────
+
+func _on_achievement_unlocked(achievement: Dictionary):
+	_show_achievement_toast(achievement)
+
+func _show_achievement_toast(achievement: Dictionary):
+	# Toast panel at top
+	var toast = PanelContainer.new()
+	toast.z_index = 400
+	toast.custom_minimum_size = Vector2(size.x - 40, 60)
+	toast.position = Vector2(20, -70)
+	toast.size = Vector2(size.x - 40, 60)
+	
+	# Style the toast
+	var style = StyleBoxFlat.new()
+	style.bg_color = ThemeManager.get_color("surface").lerp(ThemeManager.get_color("gold"), 0.15)
+	style.set_corner_radius_all(12)
+	style.content_margin_left = 16
+	style.content_margin_right = 16
+	style.content_margin_top = 8
+	style.content_margin_bottom = 8
+	style.border_color = ThemeManager.get_color("gold")
+	style.set_border_width_all(1)
+	toast.add_theme_stylebox_override("panel", style)
+	add_child(toast)
+	
+	var hbox = HBoxContainer.new()
+	hbox.add_theme_constant_override("separation", 12)
+	toast.add_child(hbox)
+	
+	# Icon
+	var icon_label = Label.new()
+	icon_label.text = achievement.get("icon", "🏅")
+	icon_label.add_theme_font_size_override("font_size", 28)
+	hbox.add_child(icon_label)
+	
+	# Text
+	var text_label = Label.new()
+	text_label.text = "%s Unlocked!" % achievement.get("name", "Achievement")
+	text_label.add_theme_font_size_override("font_size", 18)
+	text_label.add_theme_color_override("font_color", ThemeManager.get_color("text_primary"))
+	text_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	hbox.add_child(text_label)
+	
+	# Animate: slide down, wait, slide up
+	var tween = create_tween()
+	tween.tween_property(toast, "position:y", 20.0, 0.3).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+	tween.tween_interval(3.0)
+	tween.tween_property(toast, "position:y", -70.0, 0.3).set_ease(Tween.EASE_IN)
+	tween.tween_callback(toast.queue_free)
 
 func _on_workout():
 	GameManager.go_to_scene("res://scenes/routine_list.tscn")

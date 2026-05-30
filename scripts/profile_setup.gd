@@ -38,10 +38,26 @@ var _training_checks: Dictionary = {}
 var _equipment_checks: Dictionary = {}
 
 func _ready():
-	bg.color = ThemeManager.get_color("background")
+	ThemeManager.apply_gradient_bg(bg)
+	ThemeManager.fix_scroll_container($ScrollContainer)
 	$ScrollContainer/VBox/Title.add_theme_color_override("font_color", ThemeManager.get_color("primary_accent"))
 	$ScrollContainer/VBox/Title.add_theme_font_size_override("font_size", 28)
 	save_btn.pressed.connect(_on_save)
+	
+	# Apply styles to inputs
+	ThemeManager.apply_input(name_input)
+	ThemeManager.apply_input(age_input)
+	ThemeManager.apply_input(weight_input)
+	ThemeManager.apply_input(height_input)
+	ThemeManager.apply_input(goal_input)
+	ThemeManager.apply_input(experience_input)
+	ThemeManager.apply_input(workouts_input)
+	ThemeManager.apply_input(calories_input)
+	ThemeManager.apply_input(protein_input)
+	ThemeManager.apply_input(duration_input)
+	
+	# Apply button style
+	ThemeManager.apply_button(save_btn)
 
 	# Set up unit toggle
 	unit_toggle.add_item("Metric (kg/cm)")

@@ -12,9 +12,13 @@ extends Control
 var routine: Dictionary = {}
 
 func _ready():
-	bg.color = ThemeManager.get_color("background")
+	ThemeManager.apply_gradient_bg(bg)
+	ThemeManager.fix_scroll_container($ScrollContainer)
 	$TopBar/BackBtn.pressed.connect(func(): GameManager.go_to_scene("res://scenes/routine_list.tscn"))
 	$TopBar/Title.add_theme_color_override("font_color", ThemeManager.get_color("primary_accent"))
+	ThemeManager.apply_button($TopBar/BackBtn)
+	ThemeManager.apply_button(start_btn)
+	ThemeManager.apply_button(edit_btn)
 	start_btn.pressed.connect(_on_start_workout)
 	edit_btn.pressed.connect(_on_edit)
 
@@ -63,18 +67,7 @@ func _populate_exercises(exercises: Array):
 	for i in range(exercises.size()):
 		var ex = exercises[i]
 		var card = PanelContainer.new()
-
-		var style = StyleBoxFlat.new()
-		style.bg_color = ThemeManager.get_color("surface_variant")
-		style.corner_radius_top_left = 8
-		style.corner_radius_top_right = 8
-		style.corner_radius_bottom_left = 8
-		style.corner_radius_bottom_right = 8
-		style.content_margin_left = 12
-		style.content_margin_right = 12
-		style.content_margin_top = 10
-		style.content_margin_bottom = 10
-		card.add_theme_stylebox_override("panel", style)
+		ThemeManager.apply_card(card)
 
 		var hbox = HBoxContainer.new()
 		hbox.add_theme_constant_override("separation", 12)

@@ -17,7 +17,7 @@ func _ready():
 	
 	# Style the button
 	start_btn.add_theme_font_size_override("font_size", 32)
-	start_btn.add_theme_color_override("font_color", ThemeManager.get_color("text_primary"))
+	ThemeManager.apply_button(start_btn)
 	
 	# Animate title
 	title.modulate.a = 0.0
@@ -32,7 +32,7 @@ func _ready():
 	start_btn.pressed.connect(_on_start_pressed)
 
 func _apply_theme():
-	bg.color = ThemeManager.get_color("background")
+	ThemeManager.apply_gradient_bg(bg)
 
 func _on_start_pressed():
 	var has_stats = not GameManager.user_stats.is_empty()

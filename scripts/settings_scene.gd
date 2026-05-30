@@ -11,10 +11,12 @@ extends Control
 @onready var confirm_dialog = $ConfirmDialog
 
 func _ready():
-	bg.color = ThemeManager.get_color("background")
+	ThemeManager.apply_gradient_bg(bg)
+	ThemeManager.fix_scroll_container($ScrollContainer)
 	$TopBar/BackBtn.pressed.connect(func(): GameManager.go_to_hub())
 	$TopBar/Title.add_theme_color_override("font_color", ThemeManager.get_color("primary_accent"))
 	_apply_section_colors()
+	_apply_styles()
 	_populate_themes()
 
 	# Set up imperial/metric toggle
@@ -41,6 +43,11 @@ func _ready():
 	reset_btn.pressed.connect(_on_reset_pressed)
 	confirm_dialog.confirmed.connect(_on_reset_confirmed)
 
+func _apply_styles():
+	ThemeManager.apply_button($TopBar/BackBtn)
+	ThemeManager.apply_button(edit_profile_btn)
+	ThemeManager.apply_button(reset_btn)
+
 func _apply_section_colors():
 	var accent = ThemeManager.get_color("primary_accent")
 	var secondary = ThemeManager.get_color("text_secondary")
@@ -60,12 +67,14 @@ func _populate_themes():
 		btn.text = "%s%s — %s" % [indicator, t["name"], t["description"]]
 		btn.add_theme_color_override("font_color", ThemeManager.get_color("text_primary"))
 		btn.pressed.connect(func(): _select_theme(t["key"]))
+		ThemeManager.apply_button(btn)
 		theme_list.add_child(btn)
 
 func _select_theme(key: String):
 	ThemeManager.apply_theme(key)
-	bg.color = ThemeManager.get_color("background")
+	ThemeManager.apply_gradient_bg(bg)
 	_apply_section_colors()
+	_apply_styles()
 	# Rebuild theme list
 	for child in theme_list.get_children():
 		child.queue_free()
@@ -100,5 +109,6 @@ func _on_reset_confirmed():
 	for child in theme_list.get_children():
 		child.queue_free()
 	_populate_themes()
-	bg.color = ThemeManager.get_color("background")
+	ThemeManager.apply_gradient_bg(bg)
 	_apply_section_colors()
+	_apply_styles()

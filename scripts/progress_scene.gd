@@ -4,10 +4,13 @@ extends Control
 @onready var vbox = $ScrollContainer/VBox
 
 func _ready():
-	bg.color = ThemeManager.get_color("background")
+	ThemeManager.apply_gradient_bg(bg)
+	ThemeManager.fix_scroll_container($ScrollContainer)
 	$TopBar/BackBtn.pressed.connect(func(): GameManager.go_to_hub())
 	$TopBar/Title.add_theme_color_override("font_color", ThemeManager.get_color("primary_accent"))
+	ThemeManager.apply_button($TopBar/BackBtn)
 	$ScrollContainer/VBox/AchievementsBtn.pressed.connect(func(): GameManager.go_to_scene("res://scenes/achievements.tscn"))
+	ThemeManager.apply_button($ScrollContainer/VBox/AchievementsBtn)
 	_refresh()
 
 func _refresh():
@@ -57,6 +60,7 @@ func _refresh():
 	xp_bar.custom_minimum_size = Vector2(0, 24)
 	xp_bar.value = xp_progress * 100.0
 	xp_bar.show_percentage = false
+	ThemeManager.apply_progress(xp_bar)
 	xp_vbox.add_child(xp_bar)
 
 	var xp_text = Label.new()
@@ -163,6 +167,7 @@ func _refresh():
 func _make_card() -> PanelContainer:
 	var card = PanelContainer.new()
 	card.custom_minimum_size = Vector2(0, 0)
+	ThemeManager.apply_card(card)
 	return card
 
 func _make_stat_row(icon_text: String, value_text: String) -> HBoxContainer:

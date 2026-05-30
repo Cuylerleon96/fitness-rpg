@@ -13,9 +13,11 @@ var stats: Dictionary = {}
 var anim_progress: float = 0.0
 
 func _ready():
-	bg.color = ThemeManager.get_color("background")
+	ThemeManager.apply_gradient_bg(bg)
+	ThemeManager.fix_scroll_container($ScrollContainer)
 	$TopBar/BackBtn.pressed.connect(func(): GameManager.go_to_hub())
 	$TopBar/Title.add_theme_color_override("font_color", ThemeManager.get_color("primary_accent"))
+	ThemeManager.apply_button($TopBar/BackBtn)
 	
 	var sessions = Database.get_recent_sessions(50)
 	stats = Gamification.calculate_player_stats(GameManager.profile, sessions)
@@ -30,6 +32,12 @@ func _ready():
 		GameManager.get_level_from_xp(GameManager.profile.get("total_xp", 0))
 	]
 	stats_label.add_theme_color_override("font_color", ThemeManager.get_color("text_secondary"))
+	
+	# Apply progress bar styles
+	ThemeManager.apply_progress(str_bar)
+	ThemeManager.apply_progress(end_bar)
+	ThemeManager.apply_progress(con_bar)
+	ThemeManager.apply_progress(ver_bar)
 	
 	# Animate bars
 	_animate_bars()

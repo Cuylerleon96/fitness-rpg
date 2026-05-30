@@ -4,9 +4,11 @@ extends Control
 @onready var grid = $ScrollContainer/Grid
 
 func _ready():
-	bg.color = ThemeManager.get_color("background")
+	ThemeManager.apply_gradient_bg(bg)
+	ThemeManager.fix_scroll_container($ScrollContainer)
 	$TopBar/BackBtn.pressed.connect(func(): GameManager.go_to_hub())
 	$TopBar/Title.add_theme_color_override("font_color", ThemeManager.get_color("primary_accent"))
+	ThemeManager.apply_button($TopBar/BackBtn)
 	_populate()
 
 func _populate():
@@ -14,6 +16,7 @@ func _populate():
 	for a in achievements:
 		var card = PanelContainer.new()
 		card.custom_minimum_size = Vector2(160, 180)
+		ThemeManager.apply_card(card)
 		
 		var vbox = VBoxContainer.new()
 		vbox.alignment = BoxContainer.ALIGNMENT_CENTER

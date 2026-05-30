@@ -19,13 +19,20 @@ var pending_date_string: String = ""
 var pending_epoch_day: int = 0
 
 func _ready():
-	bg.color = ThemeManager.get_color("background")
+	ThemeManager.apply_gradient_bg(bg)
+	ThemeManager.fix_scroll_container($ScrollContainer)
 	$TopBar/BackBtn.pressed.connect(func(): GameManager.go_to_hub())
 	$TopBar/Title.add_theme_color_override("font_color", ThemeManager.get_color("primary_accent"))
+	ThemeManager.apply_button($TopBar/BackBtn)
+	ThemeManager.apply_button($ScrollContainer/VBox/NavRow/PrevBtn)
+	ThemeManager.apply_button($ScrollContainer/VBox/NavRow/NextBtn)
 	$ScrollContainer/VBox/NavRow/PrevBtn.pressed.connect(_on_prev_month)
 	$ScrollContainer/VBox/NavRow/NextBtn.pressed.connect(_on_next_month)
 	$ScrollContainer/VBox/WeekDaysRow.visible = true
 	detail_panel.visible = false
+
+	# Apply card style to detail panel
+	ThemeManager.apply_card(detail_panel)
 
 	var now = Time.get_datetime_dict_from_system()
 	current_year = now.year
@@ -128,6 +135,7 @@ func _render_month():
 
 		var d = day
 		btn.pressed.connect(func(): _on_day_pressed(d))
+		ThemeManager.apply_button(btn)
 		grid.add_child(btn)
 
 func _on_day_pressed(day: int):
@@ -268,6 +276,7 @@ func _render_upcoming():
 		var routine_name = _get_routine_name(routine_id)
 		var card = PanelContainer.new()
 		card.custom_minimum_size = Vector2(0, 48)
+		ThemeManager.apply_card(card)
 		var hbox = HBoxContainer.new()
 		hbox.add_theme_constant_override("separation", 12)
 		var date_label = Label.new()

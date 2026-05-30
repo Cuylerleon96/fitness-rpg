@@ -171,6 +171,11 @@ layout_mode = 2
 text = "0:60"
 horizontal_alignment = 1
 
+[node name="NextExerciseLabel" type="Label" parent="RestOverlay/RestVBox"]
+layout_mode = 2
+text = ""
+horizontal_alignment = 1
+
 [node name="SkipBtn" type="Button" parent="RestOverlay/RestVBox"]
 layout_mode = 2
 text = "Skip Rest"

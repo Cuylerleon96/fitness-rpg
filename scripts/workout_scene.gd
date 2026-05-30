@@ -17,6 +17,7 @@ extends Control
 @onready var rest_time_label = $RestOverlay/RestVBox/RestTime
 @onready var rest_bg = $RestOverlay/RestBg
 @onready var timer_circle = $RestOverlay/RestVBox/TimerCircle
+@onready var next_exercise_label = $RestOverlay/RestVBox/NextExerciseLabel
 @onready var skip_btn = $RestOverlay/RestVBox/SkipBtn
 @onready var duration_input = $DurationInput
 @onready var pr_badge = $PRBadge
@@ -56,7 +57,7 @@ var total_xp_earned: int = 0
 var _last_session: Dictionary = {}
 
 func _ready():
-	bg.color = ThemeManager.get_color("background")
+	ThemeManager.apply_gradient_bg(bg)
 	
 	var routine_id = GameManager.get_pending_routine_id()
 	if routine_id.is_empty():
@@ -85,6 +86,13 @@ func _ready():
 	duration_input.visible = false
 	pr_badge.visible = false
 	finish_summary.visible = false
+	
+	# Apply styles to buttons
+	ThemeManager.apply_button(prev_btn)
+	ThemeManager.apply_button(next_btn)
+	ThemeManager.apply_button(finish_btn)
+	ThemeManager.apply_button(skip_btn)
+	ThemeManager.apply_button(continue_button)
 	
 	prev_btn.pressed.connect(_on_prev)
 	next_btn.pressed.connect(_on_next)
@@ -211,6 +219,7 @@ func _build_set_rows():
 				dur_input.custom_minimum_size = Vector2(140, 45)
 				dur_input.placeholder_text = "mm:ss"
 				dur_input.name = "duration_%d" % i
+				ThemeManager.apply_input(dur_input)
 				row.add_child(dur_input)
 			else:
 				# Weight input (only for strength)
@@ -219,6 +228,7 @@ func _build_set_rows():
 					weight_input.custom_minimum_size = Vector2(100, 45)
 					weight_input.placeholder_text = "%.0f kg" % ex.get("targetWeight", 0.0)
 					weight_input.name = "weight_%d" % i
+					ThemeManager.apply_input(weight_input)
 					row.add_child(weight_input)
 				
 				# Reps input
@@ -226,12 +236,14 @@ func _build_set_rows():
 				reps_input.custom_minimum_size = Vector2(80, 45)
 				reps_input.placeholder_text = "reps"
 				reps_input.name = "reps_%d" % i
+				ThemeManager.apply_input(reps_input)
 				row.add_child(reps_input)
 			
 			# Complete button
 			var complete_btn = Button.new()
 			complete_btn.text = "✓"
 			complete_btn.custom_minimum_size = Vector2(50, 45)
+			ThemeManager.apply_button(complete_btn)
 			var idx = i
 			complete_btn.pressed.connect(func(): _complete_set(idx))
 			row.add_child(complete_btn)
@@ -254,7 +266,7 @@ func _build_set_rows():
 				if current_weight > best_weight and current_weight > 0:
 					var pr_label = Label.new()
 					pr_label.text = "🏆 PR!"
-					pr_label.add_theme_color_override("font_color", ThemeManager.get_color("gold", Color(1.0, 0.84, 0.0)))
+					pr_label.add_theme_color_override("font_color", ThemeManager.get_color("gold"))
 					row.add_child(pr_label)
 				elif current_weight >= ex.get("targetWeight", 0.0) and ex.get("targetWeight", 0.0) > 0:
 					var hit = Label.new()
@@ -344,7 +356,41 @@ func _start_rest(seconds: int):
 	rest_bg.color = ThemeManager.get_color("background") * Color(1, 1, 1, 0.9)
 	rest_time_label.add_theme_font_size_override("font_size", 48)
 	rest_time_label.add_theme_color_override("font_color", ThemeManager.get_color("primary_accent"))
+	# Show next exercise name
+	if current_exercise_index + 1 < exercises.size():
+		var next_ex = exercises[current_exercise_index + 1]
+		next_exercise_label.text = "Next: %s" % next_ex.get("name", "")
+		next_exercise_label.add_theme_color_override("font_color", ThemeManager.get_color("text_secondary"))
+		next_exercise_label.visible = true
+	else:
+		next_exercise_label.text = "Final exercise done!"
+		next_exercise_label.add_theme_color_override("font_color", ThemeManager.get_color("gold"))
+		next_exercise_label.visible = true
+	# Connect draw signal for circle rendering
+	if not timer_circle.draw.is_connected(_draw_timer_circle):
+		timer_circle.draw.connect(_draw_timer_circle)
 	_update_rest_display()
+
+func _draw_timer_circle():
+	var center = timer_circle.size * 0.5
+	var radius = min(timer_circle.size.x, timer_circle.size.y) * 0.45
+	var fraction = float(rest_remaining) / float(rest_total) if rest_total > 0 else 0.0
+	# Color: green -> yellow -> red
+	var arc_color: Color
+	if fraction > 0.5:
+		arc_color = Color(0.2, 0.85, 0.3).lerp(Color(1.0, 0.85, 0.0), 1.0 - (fraction - 0.5) * 2.0)
+	else:
+		arc_color = Color(1.0, 0.85, 0.0).lerp(Color(0.95, 0.2, 0.2), 1.0 - fraction * 2.0)
+	# Background circle (dim)
+	timer_circle.draw_arc(center, radius, 0, TAU, 64, ThemeManager.get_color("surface_variant"), 8.0)
+	# Active arc
+	if fraction > 0.001:
+		var arc_length = TAU * fraction
+		timer_circle.draw_arc(center, radius, PI * 0.5, PI * 0.5 + arc_length, 64, arc_color, 10.0)
+	# "GO!" text when timer hits 0
+	if rest_remaining <= 0:
+		var font = ThemeDB.fallback_font
+		timer_circle.draw_string(font, center - Vector2(24, -8), "GO!", HORIZONTAL_ALIGNMENT_CENTER, -1, 36, Color(0.2, 0.9, 0.3))
 
 func _process_rest(delta: float):
 	_rest_accumulator += delta
@@ -490,7 +536,7 @@ func _show_finish_summary(total_sets: int, total_volume: float, xp: int, boss_av
 	total_volume_label.add_theme_color_override("font_color", ThemeManager.get_color("text_primary"))
 	
 	xp_earned_label.text = "⭐ XP Earned: %d" % xp
-	xp_earned_label.add_theme_color_override("font_color", ThemeManager.get_color("gold", Color(1.0, 0.84, 0.0)))
+	xp_earned_label.add_theme_color_override("font_color", ThemeManager.get_color("gold"))
 	
 	if boss_available:
 		boss_available_label.text = "🐉 BOSS BATTLE AVAILABLE! Every 10th workout triggers a boss fight!"
