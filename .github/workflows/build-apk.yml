@@ -37,7 +37,6 @@ jobs:
         run: |
           echo "JAVA_HOME=$JAVA_HOME"
           echo "ANDROID_HOME=$ANDROID_HOME"
-          echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT"
           ls "$ANDROID_HOME/platform-tools/adb" && echo "ADB OK"
           ls "$ANDROID_HOME/build-tools/34.0.0/aapt2" && echo "aapt2 OK"
           ls "$ANDROID_HOME/build-tools/34.0.0/apksigner" && echo "apksigner OK"
@@ -74,16 +73,9 @@ jobs:
       - name: Configure editor settings
         run: |
           mkdir -p ~/.config/godot
-          cat > ~/.config/godot/editor_settings-4.3.tres << EOF
-          [gd_resource type="EditorSettings" format=3]
-
-          [resource]
-          export/android/java_sdk_path = "$JAVA_HOME"
-          export/android/android_sdk_path = "$ANDROID_HOME"
-          export/android/debug_keystore = "$HOME/.local/share/godot/keystores/debug.keystore"
-          export/android/debug_keystore_user = "androiddebugkey"
-          export/android/debug_keystore_pass = "android"
-          EOF
+          printf '[gd_resource type="EditorSettings" format=3]\n\n[resource]\nexport/android/java_sdk_path = "%s"\nexport/android/android_sdk_path = "%s"\nexport/android/debug_keystore = "%s"\nexport/android/debug_keystore_user = "androiddebugkey"\nexport/android/debug_keystore_pass = "android"\n' \
+            "$JAVA_HOME" "$ANDROID_HOME" "$HOME/.local/share/godot/keystores/debug.keystore" \
+            > ~/.config/godot/editor_settings-4.3.tres
           echo "--- Editor settings ---"
           cat ~/.config/godot/editor_settings-4.3.tres
 
