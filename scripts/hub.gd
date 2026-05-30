@@ -45,7 +45,8 @@ func _ready():
 	$ScrollContainer/VBox/NavButtons/RoutinesBtn.pressed.connect(_on_routines)
 	$ScrollContainer/VBox/NavButtons/AchievementsBtn.pressed.connect(_on_achievements)
 	$ScrollContainer/VBox/NavButtons/SettingsBtn.pressed.connect(_on_settings)
-	$ScrollContainer/VBox/BossCard/BossHBox.pressed.connect(_on_boss)
+	# Boss card click — use gui_input on the Panel (HBoxContainer has no pressed signal)
+	boss_card.gui_input.connect(_on_boss_input)
 	
 	# Daily reward dialog setup
 	daily_reward_dialog.confirmed.connect(_on_daily_reward_claimed)
@@ -327,6 +328,10 @@ func _on_achievements():
 
 func _on_settings():
 	GameManager.go_to_scene("res://scenes/settings.tscn")
+
+func _on_boss_input(event: InputEvent):
+	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+		_on_boss()
 
 func _on_boss():
 	var boss = Gamification.generate_boss(

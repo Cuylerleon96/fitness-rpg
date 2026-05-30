@@ -85,6 +85,16 @@ func get_xp_progress_fraction() -> float:
 
 # ── Award XP ───────────────────────────────────────────────────────
 
+func add_xp(amount: int):
+	var old_level = get_level_from_xp(profile.get("total_xp", 0))
+	var new_total = profile.get("total_xp", 0) + amount
+	Database.update_gamification_profile({"total_xp": new_total})
+	profile = Database.get_gamification_profile()
+	xp_gained.emit(amount)
+	var new_level = get_level_from_xp(new_total)
+	if new_level > old_level:
+		level_up.emit(new_level, get_rank_title(new_level))
+
 func award_workout_xp(sets_completed: int, total_volume: float, duration_min: int, exercise_types: Array):
 	var xp = calculate_workout_xp(sets_completed, total_volume, duration_min, exercise_types)
 	var old_level = get_level_from_xp(profile.get("total_xp", 0))
