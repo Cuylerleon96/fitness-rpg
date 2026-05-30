@@ -188,9 +188,28 @@ func go_to_workout(routine_id: String):
 	_pending_routine_id = routine_id
 	go_to_scene("res://scenes/workout.tscn")
 
+func go_to_calendar():
+	go_to_scene("res://scenes/calendar.tscn")
+
+func go_to_progress():
+	go_to_scene("res://scenes/progress.tscn")
+
+func go_to_chat():
+	go_to_scene("res://scenes/chat.tscn")
+
+func go_to_routine_detail(routine_id: String):
+	_pending_routine_detail_id = routine_id
+	go_to_scene("res://scenes/routine_detail.tscn")
+
 var _pending_routine_id: String = ""
+var _pending_routine_detail_id: String = ""
 
 func get_pending_routine_id() -> String:
 	var id = _pending_routine_id
 	_pending_routine_id = ""
+	return id
+
+func get_pending_routine_detail_id() -> String:
+	var id = _pending_routine_detail_id
+	_pending_routine_detail_id = ""
 	return id

@@ -114,6 +114,21 @@ layout_mode = 2
 custom_minimum_size = Vector2(0, 70)
 text = "⚔️ START WORKOUT"
 
+[node name="CalendarBtn" type="Button" parent="VBox/NavButtons"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 60)
+text = "📅 CALENDAR"
+
+[node name="ProgressBtn" type="Button" parent="VBox/NavButtons"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 60)
+text = "📈 PROGRESS"
+
+[node name="ChatBtn" type="Button" parent="VBox/NavButtons"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 60)
+text = "💬 AI COACH"
+
 [node name="CharacterBtn" type="Button" parent="VBox/NavButtons"]
 layout_mode = 2
 custom_minimum_size = Vector2(0, 60)

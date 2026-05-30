@@ -52,7 +52,7 @@ func _refresh():
 		var meta = Label.new()
 		meta.text = "%d exercises | %s" % [ex_count, r.get("difficulty", "")]
 		meta.add_theme_font_size_override("font_size", 12)
-		meta.add_theme_color_override("font_color", ThemeManager.get_color("text_disabled"))
+		meta.add_theme_color_override("font_color", ThemeManager.get_color("text_secondary") * Color(1, 1, 1, 0.6))
 		
 		info.add_child(name_label)
 		info.add_child(desc)
@@ -60,10 +60,16 @@ func _refresh():
 		
 		var start_btn = Button.new()
 		start_btn.text = "START"
-		start_btn.custom_minimum_size = Vector2(100, 60)
+		start_btn.custom_minimum_size = Vector2(80, 60)
 		start_btn.pressed.connect(func(): _start_routine(r["id"]))
 		
+		var view_btn = Button.new()
+		view_btn.text = "VIEW"
+		view_btn.custom_minimum_size = Vector2(70, 60)
+		view_btn.pressed.connect(func(): GameManager.go_to_routine_detail(r["id"]))
+		
 		hbox.add_child(info)
+		hbox.add_child(view_btn)
 		hbox.add_child(start_btn)
 		card.add_child(hbox)
 		vbox.add_child(card)

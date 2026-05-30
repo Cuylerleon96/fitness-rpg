@@ -34,6 +34,9 @@ func _load():
 		_data["routines"] = {}
 	if not "settings" in _data:
 		_data["settings"] = {}
+	# Ensure use_imperial default in user_stats
+	if not "use_imperial" in _data["user_stats"]:
+		_data["user_stats"]["use_imperial"] = false
 	_save()
 
 func _save():
@@ -41,6 +44,20 @@ func _save():
 	if file:
 		file.store_string(JSON.stringify(_data, "\t"))
 		file.close()
+
+# ── Unit Conversion Helpers ──────────────────────────────────────
+
+func kg_to_lbs(kg: float) -> float:
+	return kg * 2.20462
+
+func lbs_to_kg(lbs: float) -> float:
+	return lbs / 2.20462
+
+func cm_to_inches(cm: float) -> float:
+	return cm / 2.54
+
+func inches_to_cm(inches: float) -> float:
+	return inches * 2.54
 
 # ── User Stats ─────────────────────────────────────────────────────
 
@@ -171,9 +188,22 @@ func delete_routine(routine_id: String):
 
 # ── Settings ───────────────────────────────────────────────────────
 
-func get_setting(key: String, default_value: String = "") -> String:
+func get_setting(key: String, default_value = ""):
 	return _data["settings"].get(key, default_value)
 
-func set_setting(key: String, value: String):
+func set_setting(key: String, value):
 	_data["settings"][key] = value
+	_save()
+
+# ── Reset All Data ──────────────────────────────────────────────
+
+func reset_all_data():
+	_data = {
+		"user_stats": {"use_imperial": false},
+		"gamification_profile": {"total_xp": 0, "current_level": 1, "current_streak": 0, "longest_streak": 0, "total_workouts": 0, "last_workout_date": 0, "streak_freezes": 0, "bosses_defeated": 0},
+		"achievements": {},
+		"workout_sessions": {},
+		"routines": {},
+		"settings": {}
+	}
 	_save()

@@ -1,0 +1,119 @@
+[gd_scene load_steps=2 format=3 uid="uid://cal001"]
+
+[ext_resource type="Script" path="res://scripts/calendar_scene.gd" id="1_cal"]
+
+[node name="Calendar" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("1_cal")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="TopBar" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 60.0
+
+[node name="BackBtn" type="Button" parent="TopBar"]
+layout_mode = 2
+text = "← Back"
+
+[node name="Title" type="Label" parent="TopBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "CALENDAR"
+horizontal_alignment = 1
+
+[node name="ScrollContainer" type="ScrollContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 70.0
+
+[node name="VBox" type="VBoxContainer" parent="ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 16
+
+[node name="NavRow" type="HBoxContainer" parent="ScrollContainer/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="PrevBtn" type="Button" parent="ScrollContainer/VBox/NavRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(60, 50)
+text = "◀"
+
+[node name="MonthLabel" type="Label" parent="ScrollContainer/VBox/NavRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "January 2026"
+horizontal_alignment = 1
+
+[node name="NextBtn" type="Button" parent="ScrollContainer/VBox/NavRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(60, 50)
+text = "▶"
+
+[node name="WeekDaysRow" type="GridContainer" parent="ScrollContainer/VBox"]
+layout_mode = 2
+columns = 7
+
+[node name="Sun" type="Label" parent="ScrollContainer/VBox/WeekDaysRow"]
+layout_mode = 2
+text = "Sun"
+horizontal_alignment = 1
+
+[node name="Mon" type="Label" parent="ScrollContainer/VBox/WeekDaysRow"]
+layout_mode = 2
+text = "Mon"
+horizontal_alignment = 1
+
+[node name="Tue" type="Label" parent="ScrollContainer/VBox/WeekDaysRow"]
+layout_mode = 2
+text = "Tue"
+horizontal_alignment = 1
+
+[node name="Wed" type="Label" parent="ScrollContainer/VBox/WeekDaysRow"]
+layout_mode = 2
+text = "Wed"
+horizontal_alignment = 1
+
+[node name="Thu" type="Label" parent="ScrollContainer/VBox/WeekDaysRow"]
+layout_mode = 2
+text = "Thu"
+horizontal_alignment = 1
+
+[node name="Fri" type="Label" parent="ScrollContainer/VBox/WeekDaysRow"]
+layout_mode = 2
+text = "Fri"
+horizontal_alignment = 1
+
+[node name="Sat" type="Label" parent="ScrollContainer/VBox/WeekDaysRow"]
+layout_mode = 2
+text = "Sat"
+horizontal_alignment = 1
+
+[node name="CalendarGrid" type="GridContainer" parent="ScrollContainer/VBox"]
+layout_mode = 2
+columns = 7
+theme_override_constants/h_separation = 4
+theme_override_constants/v_separation = 4
+
+[node name="DetailPanel" type="PanelContainer" parent="ScrollContainer/VBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 100)
+
+[node name="DetailLabel" type="Label" parent="ScrollContainer/VBox/DetailPanel"]
+layout_mode = 2
+text = "Tap a day to see details"
+horizontal_alignment = 1
+autowrap_mode = 2

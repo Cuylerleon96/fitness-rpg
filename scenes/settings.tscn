@@ -43,6 +43,23 @@ layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 16
 
+[node name="ProfileHeader" type="Label" parent="ScrollContainer/VBox"]
+layout_mode = 2
+text = "PROFILE"
+
+[node name="EditProfileBtn" type="Button" parent="ScrollContainer/VBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 50)
+text = "Edit Profile"
+
+[node name="UnitsHeader" type="Label" parent="ScrollContainer/VBox"]
+layout_mode = 2
+text = "UNITS"
+
+[node name="UnitToggle" type="OptionButton" parent="ScrollContainer/VBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 50)
+
 [node name="ThemeHeader" type="Label" parent="ScrollContainer/VBox"]
 layout_mode = 2
 text = "THEME"
@@ -51,10 +68,38 @@ text = "THEME"
 layout_mode = 2
 theme_override_constants/separation = 8
 
+[node name="NotificationsHeader" type="Label" parent="ScrollContainer/VBox"]
+layout_mode = 2
+text = "NOTIFICATIONS"
+
+[node name="ReminderToggle" type="CheckBox" parent="ScrollContainer/VBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 50)
+text = "Workout Reminders"
+
+[node name="ReminderTimeLabel" type="Label" parent="ScrollContainer/VBox"]
+layout_mode = 2
+text = "Reminder time: 08:00 (placeholder)"
+
+[node name="DataHeader" type="Label" parent="ScrollContainer/VBox"]
+layout_mode = 2
+text = "DATA"
+
+[node name="ResetBtn" type="Button" parent="ScrollContainer/VBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 50)
+text = "Reset All Data"
+
 [node name="AboutHeader" type="Label" parent="ScrollContainer/VBox"]
 layout_mode = 2
 text = "ABOUT"
 
 [node name="VersionLabel" type="Label" parent="ScrollContainer/VBox"]
 layout_mode = 2
-text = "Fitness RPG v0.1.0"
+text = "Fitness RPG v1.0.0"
+
+[node name="ConfirmDialog" type="ConfirmationDialog" parent="."]
+title = "Confirm Reset"
+size = Vector2i(400, 200)
+visible = false
+dialog_text = "This will erase ALL your data including workouts, achievements, and settings. This cannot be undone. Are you sure?"

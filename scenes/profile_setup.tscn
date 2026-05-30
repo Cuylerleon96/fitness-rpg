@@ -51,6 +51,14 @@ layout_mode = 2
 custom_minimum_size = Vector2(0, 50)
 placeholder_text = "25"
 
+[node name="UnitLabel" type="Label" parent="ScrollContainer/VBox"]
+layout_mode = 2
+text = "Units"
+
+[node name="UnitToggle" type="OptionButton" parent="ScrollContainer/VBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 50)
+
 [node name="WeightLabel" type="Label" parent="ScrollContainer/VBox"]
 layout_mode = 2
 text = "Weight (kg)"
@@ -95,6 +103,57 @@ text = "Workouts per week"
 layout_mode = 2
 custom_minimum_size = Vector2(0, 50)
 placeholder_text = "3"
+
+[node name="ActivityLabel" type="Label" parent="ScrollContainer/VBox"]
+layout_mode = 2
+text = "Activity Level"
+
+[node name="ActivityDropdown" type="OptionButton" parent="ScrollContainer/VBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 50)
+
+[node name="CaloriesLabel" type="Label" parent="ScrollContainer/VBox"]
+layout_mode = 2
+text = "Daily Calorie Target"
+
+[node name="CaloriesInput" type="LineEdit" parent="ScrollContainer/VBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 50)
+placeholder_text = "2000"
+
+[node name="ProteinLabel" type="Label" parent="ScrollContainer/VBox"]
+layout_mode = 2
+text = "Daily Protein Target (g)"
+
+[node name="ProteinInput" type="LineEdit" parent="ScrollContainer/VBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 50)
+placeholder_text = "150"
+
+[node name="DurationLabel" type="Label" parent="ScrollContainer/VBox"]
+layout_mode = 2
+text = "Preferred Workout Duration (min)"
+
+[node name="DurationInput" type="LineEdit" parent="ScrollContainer/VBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 50)
+placeholder_text = "45"
+
+[node name="TrainingHeader" type="Label" parent="ScrollContainer/VBox"]
+layout_mode = 2
+text = "TRAINING TYPES"
+
+[node name="TrainingSection" type="VBoxContainer" parent="ScrollContainer/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="EquipmentHeader" type="Label" parent="ScrollContainer/VBox"]
+layout_mode = 2
+text = "AVAILABLE EQUIPMENT"
+
+[node name="EquipmentSection" type="VBoxContainer" parent="ScrollContainer/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 4
 
 [node name="SaveBtn" type="Button" parent="."]
 layout_mode = 1

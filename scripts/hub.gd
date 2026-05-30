@@ -17,6 +17,9 @@ func _ready():
 	
 	# Button connections
 	$ScrollContainer/VBox/NavButtons/WorkoutBtn.pressed.connect(_on_workout)
+	$ScrollContainer/VBox/NavButtons/CalendarBtn.pressed.connect(_on_calendar)
+	$ScrollContainer/VBox/NavButtons/ProgressBtn.pressed.connect(_on_progress)
+	$ScrollContainer/VBox/NavButtons/ChatBtn.pressed.connect(_on_chat)
 	$ScrollContainer/VBox/NavButtons/CharacterBtn.pressed.connect(_on_character)
 	$ScrollContainer/VBox/NavButtons/RoutinesBtn.pressed.connect(_on_routines)
 	$ScrollContainer/VBox/NavButtons/AchievementsBtn.pressed.connect(_on_achievements)
@@ -60,6 +63,15 @@ func _on_xp_gained(amount: int):
 
 func _on_workout():
 	GameManager.go_to_scene("res://scenes/routine_list.tscn")
+
+func _on_calendar():
+	GameManager.go_to_calendar()
+
+func _on_progress():
+	GameManager.go_to_progress()
+
+func _on_chat():
+	GameManager.go_to_chat()
 
 func _on_character():
 	GameManager.go_to_scene("res://scenes/character_sheet.tscn")
