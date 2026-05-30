@@ -3,53 +3,49 @@ name: Build Android APK
 on:
   push:
     branches: [master]
-  pull_request:
-    branches: [master]
   workflow_dispatch:
 
 env:
-  GODOT_VERSION: "4.6.3"
-  EXPORT_NAME: "fitness-rpg"
+  GODOT_VERSION: 4.6.3
+  EXPORT_NAME: fitness-rpg
 
 jobs:
   export-android:
     name: Build Android APK
     runs-on: ubuntu-latest
+    container:
+      image: barichello/godot-ci:4.6.3
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-          java-version: "17"
-          distribution: "temurin"
-
-      - name: Set up Android SDK
+      - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Install Android SDK components
+      - name: Install SDK components
         run: |
           sdkmanager "platform-tools" "platforms;android-34" "build-tools;34.0.0"
           yes | sdkmanager --licenses
 
-      - name: Download Godot
-        run: |
-          mkdir -p ~/godot
-          cd ~/godot
-          wget -q "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-stable/Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip" -O godot.zip
-          unzip -o godot.zip
-          chmod +x Godot_v${GODOT_VERSION}-stable_linux.x86_64
-          echo "$HOME/godot" >> $GITHUB_PATH
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
 
-      - name: Download Export Templates
+      - name: Configure editor settings
         run: |
-          mkdir -p ~/.local/share/godot/export_templates/${GODOT_VERSION}.stable
-          cd ~/.local/share/godot/export_templates/${GODOT_VERSION}.stable
-          wget -q "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-stable/Godot_v${GODOT_VERSION}-stable_export_templates.tpz" -O templates.tpz
-          unzip -o templates.tpz
-          mv templates/* . 2>/dev/null || true
-          ls android_debug.apk && echo "Template OK"
+          mkdir -p ~/.config/godot
+          printf '%s\n' \
+            '[gd_resource type="EditorSettings" format=3]' \
+            '' \
+            '[resource]' \
+            "export/android/java_sdk_path = \"$JAVA_HOME\"" \
+            "export/android/android_sdk_path = \"$ANDROID_HOME\"" \
+            "export/android/debug_keystore = \"$HOME/.local/share/godot/keystores/debug.keystore\"" \
+            'export/android/debug_keystore_user = "androiddebugkey"' \
+            'export/android/debug_keystore_pass = "android"' \
+            > ~/.config/godot/editor_settings-4.tres
 
       - name: Create debug keystore
         run: |
@@ -61,39 +57,26 @@ jobs:
             -storepass android -keypass android \
             -dname "CN=Debug, OU=Debug, O=Debug, L=Debug, S=Debug, C=US"
 
-      - name: Configure editor settings
-        run: |
-          mkdir -p ~/.config/godot
-          SETTINGS_CONTENT='[gd_resource type="EditorSettings" format=3]
-
-          [resource]
-          export/android/java_sdk_path = "'"$JAVA_HOME"'"
-          export/android/android_sdk_path = "'"$ANDROID_HOME"'"
-          export/android/debug_keystore = "'"$HOME"'/.local/share/godot/keystores/debug.keystore"
-          export/android/debug_keystore_user = "androiddebugkey"
-          export/android/debug_keystore_pass = "android"'
-          # Godot 4.x may look for different filenames
-          echo "$SETTINGS_CONTENT" > ~/.config/godot/editor_settings-4.tres
-          echo "$SETTINGS_CONTENT" > ~/.config/godot/editor_settings-4.6.tres
-          cat ~/.config/godot/editor_settings-4.tres
-
-      - name: Patch export_presets for CI
+      - name: Patch export presets for CI
         run: |
           sed -i "s|keystore/debug=.*|keystore/debug=\"${HOME}/.local/share/godot/keystores/debug.keystore\"|" export_presets.cfg
+          echo "--- export_presets.cfg ---"
+          cat export_presets.cfg
 
-      - name: Import and Export
+      - name: Import project
         run: |
-          cd ${{ github.workspace }}
+          mkdir -p ~/.local/share/godot/export_templates
+          ln -sf /root/.local/share/godot/export_templates/${GODOT_VERSION}.stable ~/.local/share/godot/export_templates/${GODOT_VERSION}.stable || true
+          godot --headless --import 2>&1 || true
+
+      - name: Export APK
+        run: |
           mkdir -p export
-          Godot_v${GODOT_VERSION}-stable_linux.x86_64 --headless --import --verbose 2>&1 | tail -10
-          echo "=== EXPORTING ==="
-          Godot_v${GODOT_VERSION}-stable_linux.x86_64 --headless --verbose --export-debug "Android" export/${EXPORT_NAME}.apk 2>&1
-          echo "=== RESULT ==="
-          ls -la export/${EXPORT_NAME}.apk 2>/dev/null && echo "SUCCESS" || echo "FAILED"
+          godot --headless --verbose --export-debug "Android" export/${EXPORT_NAME}.apk 2>&1
+          ls -la export/${EXPORT_NAME}.apk
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
-        if: success()
         with:
           name: fitness-rpg-android
           path: export/fitness-rpg.apk
