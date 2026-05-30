@@ -117,3 +117,36 @@ layout_mode = 2
 text = "Tap a day to see details"
 horizontal_alignment = 1
 autowrap_mode = 2
+
+[node name="UpcomingSection" type="VBoxContainer" parent="ScrollContainer/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="UpcomingHeader" type="Label" parent="ScrollContainer/VBox/UpcomingSection"]
+layout_mode = 2
+text = "Upcoming Workouts"
+horizontal_alignment = 0
+
+[node name="UpcomingList" type="VBoxContainer" parent="ScrollContainer/VBox/UpcomingSection"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="ScheduleDialog" type="ConfirmationDialog" parent="."]
+title = "Schedule Workout"
+size = Vector2i(400, 300)
+visible = false
+
+[node name="RoutineList" type="ItemList" parent="ScheduleDialog"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 8.0
+offset_top = 8.0
+offset_right = -8.0
+offset_bottom = -50.0
+
+[node name="ActionDialog" type="AcceptDialog" parent="."]
+title = "Workout Action"
+size = Vector2i(400, 200)
+visible = false

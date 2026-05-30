@@ -25,7 +25,7 @@ func _load():
 	if not "user_stats" in _data:
 		_data["user_stats"] = {}
 	if not "gamification_profile" in _data:
-		_data["gamification_profile"] = {"total_xp": 0, "current_level": 1, "current_streak": 0, "longest_streak": 0, "total_workouts": 0, "last_workout_date": 0, "streak_freezes": 0, "bosses_defeated": 0}
+		_data["gamification_profile"] = {"total_xp": 0, "current_level": 1, "current_streak": 0, "longest_streak": 0, "total_workouts": 0, "last_workout_date": 0, "streak_freezes": 0, "bosses_defeated": 0, "quest_name": "", "quest_flavor": "", "quest_completed": false}
 	if not "achievements" in _data:
 		_data["achievements"] = {}
 	if not "workout_sessions" in _data:
@@ -34,9 +34,23 @@ func _load():
 		_data["routines"] = {}
 	if not "settings" in _data:
 		_data["settings"] = {}
+	if not "weekly_challenges" in _data:
+		_data["weekly_challenges"] = {}
 	# Ensure use_imperial default in user_stats
 	if not "use_imperial" in _data["user_stats"]:
 		_data["user_stats"]["use_imperial"] = false
+	# Ensure daily reward defaults in settings
+	if not "last_daily_claim" in _data["settings"]:
+		_data["settings"]["last_daily_claim"] = 0
+	if not "daily_claim_streak" in _data["settings"]:
+		_data["settings"]["daily_claim_streak"] = 0
+	# Ensure quest fields in gamification_profile
+	if not "quest_name" in _data["gamification_profile"]:
+		_data["gamification_profile"]["quest_name"] = ""
+	if not "quest_flavor" in _data["gamification_profile"]:
+		_data["gamification_profile"]["quest_flavor"] = ""
+	if not "quest_completed" in _data["gamification_profile"]:
+		_data["gamification_profile"]["quest_completed"] = false
 	_save()
 
 func _save():
@@ -195,15 +209,108 @@ func set_setting(key: String, value):
 	_data["settings"][key] = value
 	_save()
 
+# ── Weekly Challenges ──────────────────────────────────────────────
+
+func get_weekly_challenges() -> Array:
+	var list = []
+	for id in _data["weekly_challenges"]:
+		var c = _data["weekly_challenges"][id].duplicate()
+		c["id"] = id
+		list.append(c)
+	return list
+
+func save_weekly_challenges(challenges: Array):
+	for c in challenges:
+		var id = c.get("id", str(randi()))
+		if not id in _data["weekly_challenges"]:
+			_data["weekly_challenges"][id] = {
+				"name": c.get("name", c.get("description", "")),
+				"description": c.get("description", ""),
+				"target": c.get("target", 1),
+				"progress": 0,
+				"xp_reward": c.get("xp_reward", 50),
+				"is_completed": false,
+				"week_start": _get_week_start()
+			}
+	_save()
+
+func update_weekly_challenge_progress(type: String, amount: int = 1):
+	var week_start = _get_week_start()
+	for id in _data["weekly_challenges"]:
+		var c = _data["weekly_challenges"][id]
+		if c.get("week_start", 0) != week_start:
+			continue
+		if c.get("is_completed", false):
+			continue
+		if c.get("id", "").contains(type) or c.get("description", "").to_lower().contains(type):
+			c["progress"] = mini(c.get("progress", 0) + amount, c.get("target", 1))
+			if c["progress"] >= c.get("target", 1):
+				c["is_completed"] = true
+	_save()
+
+func _get_week_start() -> int:
+	var now = Time.get_unix_time_from_system()
+	var dt = Time.get_datetime_dict_from_unix_time(now)
+	var day_of_week = dt.get("weekday", 0) # 0=Sunday
+	var seconds_today = dt.get("hour", 0) * 3600 + dt.get("minute", 0) * 60 + dt.get("second", 0)
+	return int(now - (day_of_week * 86400) - seconds_today)
+
+# ── Daily Reward ───────────────────────────────────────────────────
+
+func claim_daily_reward() -> int:
+	var now = Time.get_unix_time_from_system()
+	var last_claim = _data["settings"].get("last_daily_claim", 0)
+	var streak = _data["settings"].get("daily_claim_streak", 0)
+	
+	var last_day = int(last_claim / 86400)
+	var today_day = int(now / 86400)
+	
+	if today_day == last_day:
+		return 0 # Already claimed today
+	
+	if today_day == last_day + 1:
+		streak += 1
+	else:
+		streak = 1 # Reset streak
+	
+	# XP rewards by streak day (cycles every 7)
+	var rewards = [10, 15, 20, 25, 30, 40, 50]
+	var xp = rewards[(streak - 1) % 7]
+	
+	_data["settings"]["last_daily_claim"] = int(now)
+	_data["settings"]["daily_claim_streak"] = streak
+	_save()
+	return xp
+
+# ── Personal Bests ─────────────────────────────────────────────────
+
+func get_personal_bests() -> Dictionary:
+	var bests = {}
+	for id in _data["workout_sessions"]:
+		var s = _data["workout_sessions"][id]
+		var logs = s.get("exercise_logs", [])
+		if logs is String:
+			logs = JSON.parse_string(logs) if logs else []
+		for log in logs:
+			var ex_name = log.get("exercise_name", "")
+			if ex_name == "":
+				continue
+			for set_log in log.get("set_logs", []):
+				var weight = set_log.get("weight", 0.0)
+				if not ex_name in bests or weight > bests[ex_name]:
+					bests[ex_name] = weight
+	return bests
+
 # ── Reset All Data ──────────────────────────────────────────────
 
 func reset_all_data():
 	_data = {
 		"user_stats": {"use_imperial": false},
-		"gamification_profile": {"total_xp": 0, "current_level": 1, "current_streak": 0, "longest_streak": 0, "total_workouts": 0, "last_workout_date": 0, "streak_freezes": 0, "bosses_defeated": 0},
+		"gamification_profile": {"total_xp": 0, "current_level": 1, "current_streak": 0, "longest_streak": 0, "total_workouts": 0, "last_workout_date": 0, "streak_freezes": 0, "bosses_defeated": 0, "quest_name": "", "quest_flavor": "", "quest_completed": false},
 		"achievements": {},
 		"workout_sessions": {},
 		"routines": {},
-		"settings": {}
+		"settings": {"last_daily_claim": 0, "daily_claim_streak": 0},
+		"weekly_challenges": {}
 	}
 	_save()

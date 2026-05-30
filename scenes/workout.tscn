@@ -66,10 +66,41 @@ layout_mode = 2
 text = "Bench Press"
 horizontal_alignment = 1
 
+[node name="MuscleGroupBadge" type="Label" parent="ExerciseCard/ExerciseVBox"]
+layout_mode = 2
+text = ""
+horizontal_alignment = 1
+visible = false
+
 [node name="TargetLabel" type="Label" parent="ExerciseCard/ExerciseVBox"]
 layout_mode = 2
 text = "🎯 Target: 60kg × 10 reps"
 horizontal_alignment = 1
+
+[node name="NotesLabel" type="Label" parent="ExerciseCard/ExerciseVBox"]
+layout_mode = 2
+text = ""
+horizontal_alignment = 1
+autowrap_mode = 2
+visible = false
+
+[node name="DurationInput" type="LineEdit" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+visible = false
+
+[node name="PRBadge" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -200.0
+offset_top = 70.0
+text = "🏆 PR!"
+visible = false
+horizontal_alignment = 2
 
 [node name="SetsContainer" type="VBoxContainer" parent="."]
 layout_mode = 1
@@ -143,3 +174,70 @@ horizontal_alignment = 1
 [node name="SkipBtn" type="Button" parent="RestOverlay/RestVBox"]
 layout_mode = 2
 text = "Skip Rest"
+
+[node name="FinishConfirmDialog" type="ConfirmationDialog" parent="."]
+title = "Finish Workout?"
+size = Vector2i(400, 200)
+
+[node name="FinishSummary" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+visible = false
+
+[node name="SummaryBg" type="ColorRect" parent="FinishSummary"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="SummaryVBox" type="VBoxContainer" parent="FinishSummary"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -250.0
+offset_top = -250.0
+offset_right = 250.0
+offset_bottom = 250.0
+theme_override_constants/separation = 16
+alignment = 1
+
+[node name="SummaryTitle" type="Label" parent="FinishSummary/SummaryVBox"]
+layout_mode = 2
+text = "Workout Complete! 🎉"
+horizontal_alignment = 1
+
+[node name="TotalTimeLabel" type="Label" parent="FinishSummary/SummaryVBox"]
+layout_mode = 2
+text = "⏱ Total Time: 00:00"
+horizontal_alignment = 1
+
+[node name="TotalSetsLabel" type="Label" parent="FinishSummary/SummaryVBox"]
+layout_mode = 2
+text = "💪 Sets Completed: 0"
+horizontal_alignment = 1
+
+[node name="TotalVolumeLabel" type="Label" parent="FinishSummary/SummaryVBox"]
+layout_mode = 2
+text = "🏋️ Total Volume: 0 kg"
+horizontal_alignment = 1
+
+[node name="XPEarnedLabel" type="Label" parent="FinishSummary/SummaryVBox"]
+layout_mode = 2
+text = "⭐ XP Earned: 0"
+horizontal_alignment = 1
+
+[node name="BossAvailableLabel" type="Label" parent="FinishSummary/SummaryVBox"]
+layout_mode = 2
+text = ""
+horizontal_alignment = 1
+visible = false
+
+[node name="ContinueButton" type="Button" parent="FinishSummary/SummaryVBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(200, 50)
+text = "Continue"

@@ -6,7 +6,9 @@ extends Control
 @onready var progress_dots = $ProgressDots
 @onready var ex_label = $ExerciseCard/ExerciseVBox/ExLabel
 @onready var ex_name = $ExerciseCard/ExerciseVBox/ExName
+@onready var muscle_badge = $ExerciseCard/ExerciseVBox/MuscleGroupBadge
 @onready var target_label = $ExerciseCard/ExerciseVBox/TargetLabel
+@onready var notes_label = $ExerciseCard/ExerciseVBox/NotesLabel
 @onready var sets_container = $SetsContainer
 @onready var prev_btn = $NavButtons/PrevBtn
 @onready var next_btn = $NavButtons/NextBtn
@@ -16,6 +18,26 @@ extends Control
 @onready var rest_bg = $RestOverlay/RestBg
 @onready var timer_circle = $RestOverlay/RestVBox/TimerCircle
 @onready var skip_btn = $RestOverlay/RestVBox/SkipBtn
+@onready var duration_input = $DurationInput
+@onready var pr_badge = $PRBadge
+@onready var finish_confirm_dialog = $FinishConfirmDialog
+@onready var finish_summary = $FinishSummary
+@onready var total_time_label = $FinishSummary/SummaryVBox/TotalTimeLabel
+@onready var total_sets_label = $FinishSummary/SummaryVBox/TotalSetsLabel
+@onready var total_volume_label = $FinishSummary/SummaryVBox/TotalVolumeLabel
+@onready var xp_earned_label = $FinishSummary/SummaryVBox/XPEarnedLabel
+@onready var boss_available_label = $FinishSummary/SummaryVBox/BossAvailableLabel
+@onready var continue_button = $FinishSummary/SummaryVBox/ContinueButton
+
+# Muscle group colors
+const MUSCLE_COLORS := {
+	"chest": Color(0.9, 0.2, 0.2),       # red
+	"back": Color(0.2, 0.4, 0.9),        # blue
+	"legs": Color(0.2, 0.8, 0.3),        # green
+	"shoulders": Color(0.85, 0.75, 0.1), # gold
+	"arms": Color(0.6, 0.2, 0.8),        # purple
+	"core": Color(1.0, 0.5, 0.1),        # orange
+}
 
 var routine: Dictionary = {}
 var exercises: Array = []
@@ -28,6 +50,10 @@ var is_resting: bool = false
 var rest_remaining: int = 0
 var rest_total: int = 0
 var _timer_accumulator: float = 0.0
+var _rest_accumulator: float = 0.0
+var personal_bests: Dictionary = {}
+var total_xp_earned: int = 0
+var _last_session: Dictionary = {}
 
 func _ready():
 	bg.color = ThemeManager.get_color("background")
@@ -45,6 +71,9 @@ func _ready():
 	routine_name_label.add_theme_color_override("font_color", ThemeManager.get_color("text_primary"))
 	workout_start_time = int(Time.get_unix_time_from_system())
 	
+	# Load personal bests for PR detection
+	personal_bests = Database.get_personal_bests()
+	
 	# Initialize set logs
 	for ex in exercises:
 		var ex_sets = []
@@ -52,16 +81,25 @@ func _ready():
 			ex_sets.append({"weight": 0.0, "reps": 0, "duration": 0, "completed": false})
 		set_logs.append(ex_sets)
 	
+	# Hide overlays by default
+	duration_input.visible = false
+	pr_badge.visible = false
+	finish_summary.visible = false
+	
 	prev_btn.pressed.connect(_on_prev)
 	next_btn.pressed.connect(_on_next)
-	finish_btn.pressed.connect(_on_finish)
+	finish_btn.pressed.connect(_on_finish_pressed)
 	skip_btn.pressed.connect(_on_skip_rest)
+	finish_confirm_dialog.confirmed.connect(_on_finish_confirmed)
+	continue_button.pressed.connect(_on_continue_from_summary)
 	
 	_display_exercise()
 	_build_progress_dots()
 
 func _process(delta: float):
-	if not is_resting:
+	if is_resting:
+		_process_rest(delta)
+	else:
 		_timer_accumulator += delta
 		if _timer_accumulator >= 1.0:
 			_timer_accumulator -= 1.0
@@ -77,6 +115,17 @@ func _build_progress_dots():
 		dot.color = ThemeManager.get_color("surface_variant") if i != current_exercise_index else ThemeManager.get_color("primary_accent")
 		progress_dots.add_child(dot)
 
+func _is_duration_exercise(ex: Dictionary) -> bool:
+	var ex_type = ex.get("exerciseType", "strength").to_lower()
+	return ex_type in ["cardio", "duration", "stretch"]
+
+func _get_muscle_group_color(muscle_group: String) -> Color:
+	var mg = muscle_group.to_lower()
+	for key in MUSCLE_COLORS:
+		if mg.contains(key):
+			return MUSCLE_COLORS[key]
+	return ThemeManager.get_color("text_secondary")
+
 func _display_exercise():
 	if current_exercise_index >= exercises.size():
 		return
@@ -87,13 +136,41 @@ func _display_exercise():
 	ex_name.add_theme_font_size_override("font_size", 24)
 	ex_name.add_theme_color_override("font_color", ThemeManager.get_color("text_primary"))
 	
-	var tw = ex.get("targetWeight", 0.0)
-	var tr = ex.get("targetReps", 0)
-	if tw > 0 or tr > 0:
-		target_label.text = "🎯 Target: %.1fkg × %d reps" % [tw, tr]
-		target_label.visible = true
+	# Muscle group badge
+	var muscle_group = ex.get("muscleGroup", "")
+	if muscle_group != "":
+		muscle_badge.text = muscle_group
+		muscle_badge.visible = true
+		muscle_badge.add_theme_color_override("font_color", _get_muscle_group_color(muscle_group))
 	else:
-		target_label.visible = false
+		muscle_badge.visible = false
+	
+	# Exercise notes
+	var notes = ex.get("notes", "")
+	if notes != "":
+		notes_label.text = notes
+		notes_label.visible = true
+		notes_label.add_theme_color_override("font_color", ThemeManager.get_color("text_secondary"))
+	else:
+		notes_label.visible = false
+	
+	# Target label - differ for duration vs strength
+	var ex_type = ex.get("exerciseType", "strength").to_lower()
+	if _is_duration_exercise(ex):
+		var target_dur = ex.get("targetDuration", 0)
+		if target_dur > 0:
+			target_label.text = "🎯 Target: %d:%02d" % [target_dur / 60, target_dur % 60]
+			target_label.visible = true
+		else:
+			target_label.visible = false
+	else:
+		var tw = ex.get("targetWeight", 0.0)
+		var tr = ex.get("targetReps", 0)
+		if tw > 0 or tr > 0:
+			target_label.text = "🎯 Target: %.1fkg × %d reps" % [tw, tr]
+			target_label.visible = true
+		else:
+			target_label.visible = false
 	target_label.add_theme_color_override("font_color", ThemeManager.get_color("text_secondary"))
 	
 	prev_btn.disabled = current_exercise_index <= 0
@@ -111,6 +188,7 @@ func _build_set_rows():
 	
 	var ex = exercises[current_exercise_index]
 	var sets = set_logs[current_exercise_index]
+	var is_duration = _is_duration_exercise(ex)
 	
 	for i in range(sets.size()):
 		var set_data = sets[i]
@@ -127,20 +205,28 @@ func _build_set_rows():
 		row.add_child(set_num)
 		
 		if not set_data["completed"]:
-			# Weight input
-			if ex.get("exerciseType", "strength") == "strength":
-				var weight_input = LineEdit.new()
-				weight_input.custom_minimum_size = Vector2(100, 45)
-				weight_input.placeholder_text = "%.0f kg" % ex.get("targetWeight", 0.0)
-				weight_input.name = "weight_%d" % i
-				row.add_child(weight_input)
-			
-			# Reps input
-			var reps_input = LineEdit.new()
-			reps_input.custom_minimum_size = Vector2(80, 45)
-			reps_input.placeholder_text = "reps"
-			reps_input.name = "reps_%d" % i
-			row.add_child(reps_input)
+			if is_duration:
+				# Duration input (minutes:seconds)
+				var dur_input = LineEdit.new()
+				dur_input.custom_minimum_size = Vector2(140, 45)
+				dur_input.placeholder_text = "mm:ss"
+				dur_input.name = "duration_%d" % i
+				row.add_child(dur_input)
+			else:
+				# Weight input (only for strength)
+				if ex.get("exerciseType", "strength") == "strength":
+					var weight_input = LineEdit.new()
+					weight_input.custom_minimum_size = Vector2(100, 45)
+					weight_input.placeholder_text = "%.0f kg" % ex.get("targetWeight", 0.0)
+					weight_input.name = "weight_%d" % i
+					row.add_child(weight_input)
+				
+				# Reps input
+				var reps_input = LineEdit.new()
+				reps_input.custom_minimum_size = Vector2(80, 45)
+				reps_input.placeholder_text = "reps"
+				reps_input.name = "reps_%d" % i
+				row.add_child(reps_input)
 			
 			# Complete button
 			var complete_btn = Button.new()
@@ -151,17 +237,30 @@ func _build_set_rows():
 			row.add_child(complete_btn)
 		else:
 			var done_label = Label.new()
-			done_label.text = "%.1fkg × %d" % [set_data["weight"], set_data["reps"]]
+			if is_duration:
+				var mins = int(set_data["duration"]) / 60
+				var secs = int(set_data["duration"]) % 60
+				done_label.text = "%d:%02d" % [mins, secs]
+			else:
+				done_label.text = "%.1fkg × %d" % [set_data["weight"], set_data["reps"]]
 			done_label.add_theme_color_override("font_color", ThemeManager.get_color("text_secondary"))
 			row.add_child(done_label)
 			
-			# Check if PR
-			var target_w = ex.get("targetWeight", 0.0)
-			if set_data["weight"] >= target_w and target_w > 0:
-				var hit = Label.new()
-				hit.text = "✓ HIT"
-				hit.add_theme_color_override("font_color", ThemeManager.get_color("success"))
-				row.add_child(hit)
+			# Check if PR (strength exercises only)
+			if not is_duration:
+				var ex_name_str = ex.get("name", "")
+				var current_weight = set_data["weight"]
+				var best_weight = personal_bests.get(ex_name_str, 0.0)
+				if current_weight > best_weight and current_weight > 0:
+					var pr_label = Label.new()
+					pr_label.text = "🏆 PR!"
+					pr_label.add_theme_color_override("font_color", ThemeManager.get_color("gold", Color(1.0, 0.84, 0.0)))
+					row.add_child(pr_label)
+				elif current_weight >= ex.get("targetWeight", 0.0) and ex.get("targetWeight", 0.0) > 0:
+					var hit = Label.new()
+					hit.text = "✓ HIT"
+					hit.add_theme_color_override("font_color", ThemeManager.get_color("success"))
+					row.add_child(hit)
 		
 		sets_container.add_child(row)
 
@@ -174,8 +273,11 @@ func _complete_set(set_index: int):
 		return
 	var row = rows[set_index]
 	
+	var ex = exercises[current_exercise_index]
+	var is_duration = _is_duration_exercise(ex)
 	var weight = 0.0
 	var reps = 0
+	var duration = 0
 	
 	for child in row.get_children():
 		if child is LineEdit:
@@ -183,10 +285,20 @@ func _complete_set(set_index: int):
 				weight = child.text.to_float()
 			elif child.name.begins_with("reps"):
 				reps = child.text.to_int()
+			elif child.name.begins_with("duration"):
+				# Parse mm:ss format
+				duration = _parse_duration_input(child.text)
 	
 	set_logs[current_exercise_index][set_index] = {
-		"weight": weight, "reps": reps, "duration": 0, "completed": true
+		"weight": weight, "reps": reps, "duration": duration, "completed": true
 	}
+	
+	# Show PR badge if this is a new personal record (strength only)
+	if not is_duration:
+		var ex_name_str = ex.get("name", "")
+		var best_weight = personal_bests.get(ex_name_str, 0.0)
+		if weight > best_weight and weight > 0:
+			_show_pr_badge()
 	
 	_build_set_rows()
 	
@@ -201,6 +313,29 @@ func _complete_set(set_index: int):
 		var rest = exercises[current_exercise_index].get("restSeconds", 60)
 		_start_rest(rest)
 
+func _parse_duration_input(text: String) -> int:
+	# Parse "mm:ss" or just seconds
+	if ":" in text:
+		var parts = text.split(":")
+		if parts.size() >= 2:
+			return parts[0].to_int() * 60 + parts[1].to_int()
+		elif parts.size() == 1:
+			return parts[0].to_int()
+	return text.to_int()
+
+func _show_pr_badge():
+	pr_badge.visible = true
+	pr_badge.add_theme_color_override("font_color", Color(1.0, 0.84, 0.0))
+	pr_badge.add_theme_font_size_override("font_size", 32)
+	# Auto-hide after 2 seconds
+	var tween = create_tween()
+	tween.tween_interval(2.0)
+	tween.tween_property(pr_badge, "modulate:a", 0.0, 0.5)
+	tween.tween_callback(func():
+		pr_badge.visible = false
+		pr_badge.modulate.a = 1.0
+	)
+
 func _start_rest(seconds: int):
 	is_resting = true
 	rest_total = seconds
@@ -212,11 +347,9 @@ func _start_rest(seconds: int):
 	_update_rest_display()
 
 func _process_rest(delta: float):
-	if not is_resting:
-		return
-	_timer_accumulator += delta
-	if _timer_accumulator >= 1.0:
-		_timer_accumulator -= 1.0
+	_rest_accumulator += delta
+	if _rest_accumulator >= 1.0:
+		_rest_accumulator -= 1.0
 		rest_remaining -= 1
 		_update_rest_display()
 		if rest_remaining <= 0:
@@ -240,9 +373,35 @@ func _on_next():
 		current_exercise_index += 1
 		_display_exercise()
 	else:
-		_on_finish()
+		_on_finish_pressed()
 
-func _on_finish():
+# ── Finish Confirmation ──────────────────────────────────────────
+
+func _on_finish_pressed():
+	# Calculate totals for the confirmation dialog
+	var total_sets = 0
+	var total_volume = 0.0
+	for i in range(exercises.size()):
+		for s in set_logs[i]:
+			if s["completed"]:
+				total_sets += 1
+				total_volume += s["weight"] * s["reps"]
+	
+	var end_time = int(Time.get_unix_time_from_system())
+	var duration_min = max((end_time - workout_start_time) / 60, 1)
+	
+	finish_confirm_dialog.title_text = "Finish Workout?"
+	finish_confirm_dialog.dialog_text = "Time: %s\nSets completed: %d\nVolume: %.0f kg" % [
+		_format_time(elapsed_seconds), total_sets, total_volume
+	]
+	finish_confirm_dialog.popup_centered()
+
+# ── Finish Summary ───────────────────────────────────────────────
+
+func _on_finish_confirmed():
+	_save_and_show_summary()
+
+func _save_and_show_summary():
 	# Build exercise logs for saving
 	var logs = []
 	for i in range(exercises.size()):
@@ -266,9 +425,12 @@ func _on_finish():
 		})
 	
 	var total_volume = 0.0
+	var total_sets = 0
 	for log in logs:
 		for s in log["set_logs"]:
 			total_volume += s["weight_kg"] * s["reps"]
+			if s["is_completed"]:
+				total_sets += 1
 	
 	var end_time = int(Time.get_unix_time_from_system())
 	var duration_min = max((end_time - workout_start_time) / 60, 1)
@@ -286,21 +448,70 @@ func _on_finish():
 		"notes": ""
 	}
 	Database.insert_session(session)
+	_last_session = session
 	
-	# Award XP
+	# Mark calendar day as completed
+	var today_day = int(Time.get_unix_time_from_system() / 86400)
+	var completed_days = Database.get_setting("completed_workout_days", [])
+	if completed_days is String:
+		completed_days = JSON.parse_string(completed_days) if completed_days else []
+	if not today_day in completed_days:
+		completed_days.append(today_day)
+	Database.set_setting("completed_workout_days", completed_days)
+	
+	# Call Gamification.process_workout_completion
+	var gam_result = Gamification.process_workout_completion(session)
+	
+	# Award XP via GameManager
 	var exercise_types = []
 	for log in logs:
 		if log["exercise_type"] not in exercise_types:
 			exercise_types.append(log["exercise_type"])
-	var sets_completed = 0
-	for log in logs:
-		for s in log["set_logs"]:
-			if s["is_completed"]:
-				sets_completed += 1
+	GameManager.award_workout_xp(total_sets, total_volume, duration_min, exercise_types)
+	total_xp_earned = gam_result.get("xp_gained", 0)
 	
-	GameManager.award_workout_xp(sets_completed, total_volume, duration_min, exercise_types)
-	GameManager.workout_completed.emit(session)
+	# Check boss battle availability
+	var total_workouts = Database.get_gamification_profile().get("total_workouts", 0)
+	var boss_available = total_workouts > 0 and total_workouts % 10 == 0
+	
+	# Show finish summary overlay
+	_show_finish_summary(total_sets, total_volume, total_xp_earned, boss_available, gam_result)
+
+func _show_finish_summary(total_sets: int, total_volume: float, xp: int, boss_available: bool, gam_result: Dictionary):
+	finish_summary.visible = true
+	
+	total_time_label.text = "⏱ Total Time: %s" % _format_time(elapsed_seconds)
+	total_time_label.add_theme_color_override("font_color", ThemeManager.get_color("text_primary"))
+	
+	total_sets_label.text = "💪 Sets Completed: %d" % total_sets
+	total_sets_label.add_theme_color_override("font_color", ThemeManager.get_color("text_primary"))
+	
+	total_volume_label.text = "🏋️ Total Volume: %.0f kg" % total_volume
+	total_volume_label.add_theme_color_override("font_color", ThemeManager.get_color("text_primary"))
+	
+	xp_earned_label.text = "⭐ XP Earned: %d" % xp
+	xp_earned_label.add_theme_color_override("font_color", ThemeManager.get_color("gold", Color(1.0, 0.84, 0.0)))
+	
+	if boss_available:
+		boss_available_label.text = "🐉 BOSS BATTLE AVAILABLE! Every 10th workout triggers a boss fight!"
+		boss_available_label.visible = true
+		boss_available_label.add_theme_color_override("font_color", Color(0.9, 0.2, 0.2))
+	else:
+		boss_available_label.visible = false
+	
+	# Streak milestone
+	var milestone = gam_result.get("streak_milestone", "")
+	if milestone != "":
+		# Append milestone info
+		boss_available_label.text += "\n%s" % milestone
+		boss_available_label.visible = true
+
+func _on_continue_from_summary():
+	finish_summary.visible = false
+	GameManager.workout_completed.emit(_last_session)
 	GameManager.go_to_hub()
+
+# ── Utilities ────────────────────────────────────────────────────
 
 func _format_time(seconds: int) -> String:
 	var m = seconds / 60

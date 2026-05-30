@@ -17,8 +17,21 @@ extends Control
 
 var _use_imperial: bool = false
 
-var _training_types = ["strength", "cardio", "yoga", "flexibility", "hiit", "calisthenics"]
-var _equipment_types = ["dumbbells", "barbell", "resistance_bands", "pull_up_bar", "bench", "kettlebell", "machines", "bodyweight"]
+var _training_types = [
+	"strength", "cardio", "hiit", "yoga", "flexibility", "calisthenics",
+	"pilates", "powerlifting", "bodybuilding", "crossfit", "stretching"
+]
+
+var _equipment_categories = {
+	"Free Weights": ["dumbbells", "barbell", "kettlebell", "weight_plates", "ez_curl_bar", "trap_bar", "ankle_weights"],
+	"Machines": ["cable_machine", "leg_press", "lat_pulldown", "leg_curl", "smith_machine", "preacher_curl_station", "cable_crossover", "pec_fly_rear_delt"],
+	"Benches & Racks": ["bench", "squat_rack", "power_rack", "dip_station", "parallettes"],
+	"Cardio": ["treadmill", "rowing_machine", "stationary_bike", "elliptical", "stair_climber", "jump_rope"],
+	"Cables & Bands": ["resistance_bands", "resistance_loops", "trx_suspension_trainer", "pull_up_bar", "gymnastics_rings"],
+	"Accessories": ["medicine_ball", "foam_roller", "ab_roller", "yoga_mat", "wrist_wraps", "hip_thrust_platform", "battle_ropes", "plyo_box"],
+	"Bodyweight Only": ["bodyweight_only", "yoga", "stretching"]
+}
+
 var _activity_levels = ["sedentary", "light", "moderate", "active", "very_active"]
 
 var _training_checks: Dictionary = {}
@@ -49,14 +62,20 @@ func _ready():
 		training_section.add_child(cb)
 		_training_checks[t] = cb
 
-	# Build equipment checkboxes
+	# Build equipment checkboxes with category headers
 	var equipment_section = $ScrollContainer/VBox/EquipmentSection
-	for e in _equipment_types:
-		var cb = CheckBox.new()
-		cb.text = e.replace("_", " ").capitalize()
-		cb.add_theme_color_override("font_color", ThemeManager.get_color("text_primary"))
-		equipment_section.add_child(cb)
-		_equipment_checks[e] = cb
+	for category in _equipment_categories:
+		var header = Label.new()
+		header.text = category
+		header.add_theme_color_override("font_color", ThemeManager.get_color("primary_accent"))
+		header.add_theme_font_size_override("font_size", 18)
+		equipment_section.add_child(header)
+		for e in _equipment_categories[category]:
+			var cb = CheckBox.new()
+			cb.text = e.replace("_", " ").capitalize()
+			cb.add_theme_color_override("font_color", ThemeManager.get_color("text_primary"))
+			equipment_section.add_child(cb)
+			_equipment_checks[e] = cb
 
 	# Set labels for default unit
 	_update_unit_labels()
@@ -142,7 +161,7 @@ func _on_save():
 
 	# Collect selected equipment
 	var selected_equip = []
-	for e in _equipment_types:
+	for e in _equipment_checks:
 		if _equipment_checks[e].button_pressed:
 			selected_equip.append(e)
 
