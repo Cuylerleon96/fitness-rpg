@@ -1,0 +1,144 @@
+[gd_scene load_steps=2 format=3 uid="uid://hub001"]
+
+[ext_resource type="Script" path="res://scripts/hub.gd" id="1_hub"]
+
+[node name="Hub" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("1_hub")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="ScrollContainer" type="ScrollContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 60.0
+offset_bottom = -120.0
+
+[node name="VBox" type="VBoxContainer" parent="ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 16
+
+[node name="TopBar" type="HBoxContainer" parent="VBox"]
+layout_mode = 2
+
+[node name="LevelBadge" type="Panel" parent="VBox/TopBar"]
+layout_mode = 2
+custom_minimum_size = Vector2(80, 80)
+
+[node name="LevelNum" type="Label" parent="VBox/TopBar/LevelBadge"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="XPBar" type="ProgressBar" parent="VBox/TopBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="RankLabel" type="Label" parent="VBox/TopBar"]
+layout_mode = 2
+
+[node name="StreakCard" type="Panel" parent="VBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 100)
+
+[node name="StreakHBox" type="HBoxContainer" parent="VBox/StreakCard"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="FireIcon" type="Label" parent="VBox/StreakCard/StreakHBox"]
+layout_mode = 2
+text = "🔥"
+horizontal_alignment = 1
+
+[node name="StreakNum" type="Label" parent="VBox/StreakCard/StreakHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "0"
+horizontal_alignment = 1
+
+[node name="StreakLabel" type="Label" parent="VBox/StreakCard/StreakHBox"]
+layout_mode = 2
+text = "day streak"
+
+[node name="BossCard" type="Panel" parent="VBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 120)
+visible = false
+
+[node name="BossHBox" type="HBoxContainer" parent="VBox/BossCard"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="BossIcon" type="Label" parent="VBox/BossCard/BossHBox"]
+layout_mode = 2
+text = "🐉"
+horizontal_alignment = 1
+
+[node name="BossInfo" type="VBoxContainer" parent="VBox/BossCard/BossHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="BossTitle" type="Label" parent="VBox/BossCard/BossHBox/BossInfo"]
+layout_mode = 2
+text = "Boss Battle Available!"
+
+[node name="BossDesc" type="Label" parent="VBox/BossCard/BossHBox/BossInfo"]
+layout_mode = 2
+text = "Tap to begin"
+
+[node name="NavButtons" type="VBoxContainer" parent="VBox"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="WorkoutBtn" type="Button" parent="VBox/NavButtons"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 70)
+text = "⚔️ START WORKOUT"
+
+[node name="CharacterBtn" type="Button" parent="VBox/NavButtons"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 60)
+text = "📊 CHARACTER SHEET"
+
+[node name="RoutinesBtn" type="Button" parent="VBox/NavButtons"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 60)
+text = "📋 MY ROUTINES"
+
+[node name="AchievementsBtn" type="Button" parent="VBox/NavButtons"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 60)
+text = "🏆 ACHIEVEMENTS"
+
+[node name="SettingsBtn" type="Button" parent="VBox/NavButtons"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 60)
+text = "⚙️ SETTINGS"
+
+[node name="TitleLabel" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 50.0
+text = "FITNESS RPG"
+horizontal_alignment = 1
+vertical_alignment = 1

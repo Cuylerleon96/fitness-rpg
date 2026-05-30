@@ -1,0 +1,106 @@
+[gd_scene load_steps=2 format=3 uid="uid://prof001"]
+
+[ext_resource type="Script" path="res://scripts/profile_setup.gd" id="1_prof"]
+
+[node name="ProfileSetup" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("1_prof")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="ScrollContainer" type="ScrollContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 20.0
+offset_bottom = -80.0
+
+[node name="VBox" type="VBoxContainer" parent="ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 12
+
+[node name="Title" type="Label" parent="ScrollContainer/VBox"]
+layout_mode = 2
+text = "SET UP YOUR PROFILE"
+horizontal_alignment = 1
+
+[node name="NameLabel" type="Label" parent="ScrollContainer/VBox"]
+layout_mode = 2
+text = "Name"
+
+[node name="NameInput" type="LineEdit" parent="ScrollContainer/VBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 50)
+placeholder_text = "Your name"
+
+[node name="AgeLabel" type="Label" parent="ScrollContainer/VBox"]
+layout_mode = 2
+text = "Age"
+
+[node name="AgeInput" type="LineEdit" parent="ScrollContainer/VBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 50)
+placeholder_text = "25"
+
+[node name="WeightLabel" type="Label" parent="ScrollContainer/VBox"]
+layout_mode = 2
+text = "Weight (kg)"
+
+[node name="WeightInput" type="LineEdit" parent="ScrollContainer/VBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 50)
+placeholder_text = "75"
+
+[node name="HeightLabel" type="Label" parent="ScrollContainer/VBox"]
+layout_mode = 2
+text = "Height (cm)"
+
+[node name="HeightInput" type="LineEdit" parent="ScrollContainer/VBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 50)
+placeholder_text = "175"
+
+[node name="GoalLabel" type="Label" parent="ScrollContainer/VBox"]
+layout_mode = 2
+text = "Fitness Goal"
+
+[node name="GoalInput" type="LineEdit" parent="ScrollContainer/VBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 50)
+placeholder_text = "Build muscle, lose fat, etc."
+
+[node name="ExperienceLabel" type="Label" parent="ScrollContainer/VBox"]
+layout_mode = 2
+text = "Experience Level"
+
+[node name="ExperienceInput" type="LineEdit" parent="ScrollContainer/VBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 50)
+placeholder_text = "beginner, intermediate, advanced"
+
+[node name="WorkoutsLabel" type="Label" parent="ScrollContainer/VBox"]
+layout_mode = 2
+text = "Workouts per week"
+
+[node name="WorkoutsInput" type="LineEdit" parent="ScrollContainer/VBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 50)
+placeholder_text = "3"
+
+[node name="SaveBtn" type="Button" parent="."]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -70.0
+text = "SAVE & CONTINUE"
