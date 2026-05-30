@@ -76,6 +76,8 @@ func inches_to_cm(inches: float) -> float:
 # ── User Stats ─────────────────────────────────────────────────────
 
 func get_user_stats() -> Dictionary:
+	if not "user_stats" in _data:
+		_data["user_stats"] = {}
 	return _data["user_stats"]
 
 func save_user_stats(stats: Dictionary):
@@ -85,6 +87,8 @@ func save_user_stats(stats: Dictionary):
 # ── Gamification Profile ───────────────────────────────────────────
 
 func get_gamification_profile() -> Dictionary:
+	if not "gamification_profile" in _data:
+		_data["gamification_profile"] = {"total_xp": 0, "current_level": 1, "current_streak": 0, "longest_streak": 0, "total_workouts": 0, "last_workout_date": 0, "streak_freezes": 0, "bosses_defeated": 0}
 	return _data["gamification_profile"]
 
 func update_gamification_profile(fields: Dictionary):

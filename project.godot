@@ -22,8 +22,8 @@ config/icon="res://assets/ui/icon.svg"
 
 [autoload]
 
-GameManager="*res://scripts/game_manager.gd"
 Database="*res://scripts/database.gd"
+GameManager="*res://scripts/game_manager.gd"
 Gamification="*res://scripts/gamification.gd"
 AIClient="*res://scripts/ai_client.gd"
 ThemeManager="*res://scripts/theme_manager.gd"
