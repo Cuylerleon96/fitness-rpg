@@ -53,7 +53,7 @@ func _draw():
 	# Draw radar chart
 	if stats.is_empty():
 		return
-	var center = radar.global_position + radar.size / 2
+	var center = radar.position + radar.size / 2
 	var radius = 120.0
 	var values = [stats["strength"], stats["endurance"], stats["consistency"], stats["versatility"]]
 	var labels = ["STR", "END", "CON", "VER"]

@@ -13,6 +13,8 @@ signal boss_available(boss_id: String)
 var user_stats: Dictionary = {}
 var profile: Dictionary = {}
 var current_theme: String = "clean_game"
+var _pending_boss: Dictionary = {}
+var _current_scene_path: String = ""
 
 # ── Initialization ─────────────────────────────────────────────────
 
@@ -189,15 +191,19 @@ func _check_achievements():
 
 var _transition_overlay: ColorRect = null
 var _is_transitioning: bool = false
+var _exit_dialog: ConfirmationDialog = null
 
 func go_to_scene(scene_path: String):
 	# Legacy direct transition (kept for compatibility)
+	_current_scene_path = scene_path
 	get_tree().change_scene_to_file(scene_path)
 
 func go_to_scene_with_transition(scene_path: String):
 	if _is_transitioning:
 		return
 	_is_transitioning = true
+	Database._save_now()
+	_current_scene_path = scene_path
 	
 	# Get the current scene root to attach the overlay
 	var current_scene = get_tree().current_scene
@@ -220,12 +226,16 @@ func go_to_scene_with_transition(scene_path: String):
 	tween.set_trans(Tween.TRANS_QUAD)
 	tween.tween_property(_transition_overlay, "color:a", 1.0, 0.3)
 	await tween.finished
+	if not is_inside_tree():
+		return
 	
 	# Change scene
 	get_tree().change_scene_to_file(scene_path)
 	
 	# Wait one frame for new scene to load
 	await get_tree().process_frame
+	if not is_inside_tree():
+		return
 	
 	# Create overlay on new scene and fade out
 	var new_scene = get_tree().current_scene
@@ -242,6 +252,8 @@ func go_to_scene_with_transition(scene_path: String):
 		tween2.set_trans(Tween.TRANS_QUAD)
 		tween2.tween_property(_transition_overlay, "color:a", 0.0, 0.3)
 		await tween2.finished
+		if not is_inside_tree():
+			return
 		
 		if is_instance_valid(_transition_overlay):
 			_transition_overlay.queue_free()
@@ -270,6 +282,31 @@ func go_to_routine_detail(routine_id: String):
 
 var _pending_routine_id: String = ""
 var _pending_routine_detail_id: String = ""
+
+func _unhandled_input(event):
+	if event is InputEventKey and event.pressed and event.keycode == KEY_BACK:
+		_handle_back()
+		get_viewport().set_input_as_handled()
+	elif event is InputEventMouseButton and event.pressed and event.button_index == 8:
+		_handle_back()
+		get_viewport().set_input_as_handled()
+
+func _handle_back():
+	if _current_scene_path == "" or _current_scene_path == "res://scenes/hub.tscn":
+		_show_exit_dialog()
+	else:
+		go_to_hub()
+
+func _show_exit_dialog():
+	if _exit_dialog and is_instance_valid(_exit_dialog):
+		_exit_dialog.popup_centered()
+		return
+	_exit_dialog = ConfirmationDialog.new()
+	_exit_dialog.title = "Exit App?"
+	_exit_dialog.dialog_text = "Are you sure you want to exit?"
+	_exit_dialog.confirmed.connect(func(): get_tree().quit())
+	add_child(_exit_dialog)
+	_exit_dialog.popup_centered()
 
 func get_pending_routine_id() -> String:
 	var id = _pending_routine_id

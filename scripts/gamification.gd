@@ -198,7 +198,7 @@ func handle_streak_update(profile: Dictionary) -> Dictionary:
 
 func check_achievements(profile: Dictionary, session: Dictionary = {}) -> Array:
 	var new_achievements = []
-	var sessions = Database.get_recent_sessions(1000)
+	var sessions = Database.get_recent_sessions(200)
 	
 	# Workout count achievements
 	var total_workouts = profile.get("total_workouts", 0)

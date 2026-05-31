@@ -281,15 +281,10 @@ func animate_button_press(button: Button):
 func _on_button_animate(button: Button):
 	if not is_instance_valid(button):
 		return
-	# Visual haptic feedback: brief white flash overlay
-	var flash = ColorRect.new()
-	flash.color = Color(1, 1, 1, 0.2)
-	flash.set_anchors_preset(Control.PRESET_FULL_RECT)
-	flash.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	button.add_child(flash)
-	var flash_tween = flash.create_tween()
-	flash_tween.tween_property(flash, "color:a", 0.0, 0.05)
-	flash_tween.tween_callback(flash.queue_free)
+	# Visual haptic feedback: brief modulate flash
+	var flash_tween = button.create_tween()
+	flash_tween.tween_property(button, "modulate", Color(1.3, 1.3, 1.3, 1.0), 0.05)
+	flash_tween.tween_property(button, "modulate", Color.WHITE, 0.1)
 	
 	# Scale animation
 	var tween = button.create_tween()
@@ -325,7 +320,7 @@ func create_level_up_effect(parent: Node):
 		return
 	var accent = get_color("primary_accent")
 	var particles: Array[ColorRect] = []
-	for i in range(20):
+	for i in range(10):
 		var p = ColorRect.new()
 		p.custom_minimum_size = Vector2(4, 4)
 		p.size = Vector2(4, 4)

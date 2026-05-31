@@ -101,7 +101,7 @@ func _on_reset_pressed():
 func _on_reset_confirmed():
 	Database.reset_all_data()
 	GameManager.user_stats = Database.get_user_stats()
-	ThemeManager.apply_theme("midnight")
+	ThemeManager.apply_theme("clean_game")
 	# Reset UI state
 	unit_toggle.selected = 0
 	reminder_toggle.button_pressed = false

@@ -21,7 +21,7 @@ func _refresh():
 
 	GameManager.refresh()
 	var profile = GameManager.profile
-	var sessions = Database.get_recent_sessions(500)
+	var sessions = Database.get_recent_sessions(50)
 	var total_xp = profile.get("total_xp", 0)
 	var level = GameManager.get_level_from_xp(total_xp)
 	var rank = GameManager.get_rank_title(level)

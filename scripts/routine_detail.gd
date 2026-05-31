@@ -148,4 +148,5 @@ func _on_edit():
 	dialog.title = "Edit Routine"
 	dialog.dialog_text = "Routine editing coming soon!"
 	add_child(dialog)
+	dialog.popup_hide.connect(dialog.queue_free)
 	dialog.popup_centered()

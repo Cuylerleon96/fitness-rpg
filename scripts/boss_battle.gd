@@ -28,7 +28,7 @@ func _ready():
 	ThemeManager.apply_progress(hp_bar)
 	
 	# Get boss data
-	boss = GameManager._pending_boss if " _pending_boss" in GameManager else {}
+	boss = GameManager._pending_boss if GameManager._pending_boss.size() > 0 else {}
 	if boss.is_empty():
 		boss = Gamification.generate_boss(
 			GameManager.profile.get("total_workouts", 0),
@@ -155,7 +155,7 @@ func _on_attack():
 # ── Victory ───────────────────────────────────────────────────────
 
 func _spawn_victory_particles():
-	for i in range(30):
+	for i in range(15):
 		var p = ColorRect.new()
 		p.custom_minimum_size = Vector2(6, 6)
 		p.size = Vector2(6, 6)
@@ -205,4 +205,5 @@ func _defeat_boss():
 	
 	# Return to hub after 3 seconds
 	await get_tree().create_timer(3.0).timeout
-	GameManager.go_to_hub()
+	if is_inside_tree():
+		GameManager.go_to_hub()

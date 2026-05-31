@@ -97,6 +97,8 @@ func _add_message(sender: String, text: String, is_user: bool):
 	message_list.add_child(row)
 	# Scroll to bottom
 	await get_tree().process_frame
+	if not is_inside_tree():
+		return
 	scroll.scroll_vertical = int(scroll.get_v_scroll_bar().max_value)
 
 func _add_typing_indicator():
@@ -134,6 +136,8 @@ func _add_typing_indicator():
 
 	message_list.add_child(row)
 	await get_tree().process_frame
+	if not is_inside_tree():
+		return
 	scroll.scroll_vertical = int(scroll.get_v_scroll_bar().max_value)
 
 func _remove_typing_indicator():

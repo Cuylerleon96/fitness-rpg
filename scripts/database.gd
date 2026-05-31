@@ -6,10 +6,18 @@ const DATA_PATH = "user://data/"
 const DB_FILE = "user://data/fitness_db.json"
 
 var _data: Dictionary = {}
+var _save_dirty: bool = false
+var _save_timer: float = 0.0
 
 func _ready():
 	DirAccess.make_dir_recursive_absolute(DATA_PATH)
 	_load()
+
+func _process(delta: float):
+	if _save_dirty:
+		_save_timer += delta
+		if _save_timer >= 0.5:
+			_flush_save()
 
 func _load():
 	if FileAccess.file_exists(DB_FILE):
@@ -54,9 +62,23 @@ func _load():
 	_save()
 
 func _save():
+	_save_dirty = true
+	_save_timer = 0.0
+
+func _flush_save():
+	_save_dirty = false
+	_save_timer = 0.0
 	var file = FileAccess.open(DB_FILE, FileAccess.WRITE)
 	if file:
-		file.store_string(JSON.stringify(_data, "\t"))
+		file.store_string(JSON.stringify(_data, "	"))
+		file.close()
+
+func _save_now():
+	_save_dirty = false
+	_save_timer = 0.0
+	var file = FileAccess.open(DB_FILE, FileAccess.WRITE)
+	if file:
+		file.store_string(JSON.stringify(_data, "	"))
 		file.close()
 
 # ── Unit Conversion Helpers ──────────────────────────────────────

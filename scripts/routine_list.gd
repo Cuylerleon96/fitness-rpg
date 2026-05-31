@@ -98,6 +98,7 @@ func _on_ai_error(message: String):
 	dialog.title = "Error"
 	dialog.dialog_text = message
 	add_child(dialog)
+	dialog.popup_hide.connect(dialog.queue_free)
 	dialog.popup_centered()
 
 func _start_routine(routine_id: String):

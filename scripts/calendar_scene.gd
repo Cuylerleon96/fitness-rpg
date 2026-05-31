@@ -46,7 +46,7 @@ func _ready():
 
 func _load_workout_days():
 	workout_days.clear()
-	var sessions = Database.get_recent_sessions(500)
+	var sessions = Database.get_recent_sessions(100)
 	for s in sessions:
 		var day = s.get("date", 0)
 		if day > 0:
