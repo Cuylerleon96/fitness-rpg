@@ -49,7 +49,7 @@ theme_override_constants/separation = 16
 
 [node name="PrevBtn" type="Button" parent="ScrollContainer/VBox/NavRow"]
 layout_mode = 2
-custom_minimum_size = Vector2(60, 50)
+custom_minimum_size = Vector2(60, 60)
 text = "◀"
 
 [node name="MonthLabel" type="Label" parent="ScrollContainer/VBox/NavRow"]
@@ -60,7 +60,7 @@ horizontal_alignment = 1
 
 [node name="NextBtn" type="Button" parent="ScrollContainer/VBox/NavRow"]
 layout_mode = 2
-custom_minimum_size = Vector2(60, 50)
+custom_minimum_size = Vector2(60, 60)
 text = "▶"
 
 [node name="WeekDaysRow" type="GridContainer" parent="ScrollContainer/VBox"]

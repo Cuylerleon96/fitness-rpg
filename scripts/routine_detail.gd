@@ -42,7 +42,7 @@ func _ready():
 
 	desc_label.text = routine.get("description", "")
 	desc_label.autowrap_mode = TextServer.AUTOWRAP_WORD
-	desc_label.add_theme_font_size_override("font_size", 14)
+	desc_label.add_theme_font_size_override("font_size", 16)
 	desc_label.add_theme_color_override("font_color", ThemeManager.get_color("text_secondary"))
 
 	var ex_data = routine.get("exercises", "[]")
@@ -55,7 +55,7 @@ func _ready():
 		routine.get("estimatedDuration", 45),
 		routine.get("difficulty", "normal").capitalize()
 	]
-	meta_label.add_theme_font_size_override("font_size", 14)
+	meta_label.add_theme_font_size_override("font_size", 16)
 	meta_label.add_theme_color_override("font_color", ThemeManager.get_color("text_secondary"))
 
 	_populate_exercises(exercises)
@@ -89,7 +89,7 @@ func _populate_exercises(exercises: Array):
 
 		var name_label = Label.new()
 		name_label.text = ex.get("name", "Exercise")
-		name_label.add_theme_font_size_override("font_size", 17)
+		name_label.add_theme_font_size_override("font_size", 18)
 		name_label.add_theme_color_override("font_color", ThemeManager.get_color("text_primary"))
 		info.add_child(name_label)
 
@@ -101,7 +101,7 @@ func _populate_exercises(exercises: Array):
 
 		var detail_label = Label.new()
 		detail_label.text = detail_text
-		detail_label.add_theme_font_size_override("font_size", 13)
+		detail_label.add_theme_font_size_override("font_size", 16)
 		detail_label.add_theme_color_override("font_color", ThemeManager.get_color("text_secondary"))
 		info.add_child(detail_label)
 
@@ -110,7 +110,7 @@ func _populate_exercises(exercises: Array):
 		if tw > 0:
 			var target_label = Label.new()
 			target_label.text = "🎯 Target: %.1f kg" % tw
-			target_label.add_theme_font_size_override("font_size", 13)
+			target_label.add_theme_font_size_override("font_size", 16)
 			target_label.add_theme_color_override("font_color", ThemeManager.get_color("gold"))
 			info.add_child(target_label)
 
@@ -119,7 +119,7 @@ func _populate_exercises(exercises: Array):
 		if notes != "":
 			var notes_label = Label.new()
 			notes_label.text = "📝 " + notes
-			notes_label.add_theme_font_size_override("font_size", 12)
+			notes_label.add_theme_font_size_override("font_size", 16)
 			notes_label.add_theme_color_override("font_color", ThemeManager.get_color("text_secondary"))
 			notes_label.autowrap_mode = TextServer.AUTOWRAP_WORD
 			info.add_child(notes_label)
@@ -129,7 +129,7 @@ func _populate_exercises(exercises: Array):
 		if mg != "":
 			var tag = Label.new()
 			tag.text = mg
-			tag.add_theme_font_size_override("font_size", 11)
+			tag.add_theme_font_size_override("font_size", 14)
 			tag.add_theme_color_override("font_color", ThemeManager.get_color("primary_light"))
 			info.add_child(tag)
 

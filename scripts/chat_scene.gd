@@ -66,14 +66,14 @@ func _add_message(sender: String, text: String, is_user: bool):
 
 	var sender_label = Label.new()
 	sender_label.text = sender
-	sender_label.add_theme_font_size_override("font_size", 12)
+	sender_label.add_theme_font_size_override("font_size", 14)
 	sender_label.add_theme_color_override("font_color", ThemeManager.get_color("primary_accent") if not is_user else ThemeManager.get_color("text_secondary"))
 	vbox.add_child(sender_label)
 
 	var text_label = Label.new()
 	text_label.text = text
 	text_label.autowrap_mode = TextServer.AUTOWRAP_WORD
-	text_label.add_theme_font_size_override("font_size", 15)
+	text_label.add_theme_font_size_override("font_size", 16)
 	text_label.add_theme_color_override("font_color", ThemeManager.get_color("text_primary"))
 	vbox.add_child(text_label)
 
@@ -121,7 +121,7 @@ func _add_typing_indicator():
 
 	var typing_label = Label.new()
 	typing_label.text = "Coach is typing..."
-	typing_label.add_theme_font_size_override("font_size", 14)
+	typing_label.add_theme_font_size_override("font_size", 16)
 	typing_label.add_theme_color_override("font_color", ThemeManager.get_color("text_secondary"))
 	typing_label.name = "TypingText"
 	bubble_panel.add_child(typing_label)

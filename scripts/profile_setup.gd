@@ -41,7 +41,7 @@ func _ready():
 	ThemeManager.apply_gradient_bg(bg)
 	ThemeManager.fix_scroll_container($ScrollContainer)
 	$ScrollContainer/VBox/Title.add_theme_color_override("font_color", ThemeManager.get_color("primary_accent"))
-	$ScrollContainer/VBox/Title.add_theme_font_size_override("font_size", 28)
+	$ScrollContainer/VBox/Title.add_theme_font_size_override("font_size", 32)
 	save_btn.pressed.connect(_on_save)
 	
 	# Apply styles to inputs
@@ -84,7 +84,7 @@ func _ready():
 		var header = Label.new()
 		header.text = category
 		header.add_theme_color_override("font_color", ThemeManager.get_color("primary_accent"))
-		header.add_theme_font_size_override("font_size", 18)
+		header.add_theme_font_size_override("font_size", 20)
 		equipment_section.add_child(header)
 		for e in _equipment_categories[category]:
 			var cb = CheckBox.new()

@@ -66,7 +66,7 @@ func _refresh():
 	var xp_text = Label.new()
 	var xp_for_next = GameManager.get_xp_for_next_level(total_xp, level)
 	xp_text.text = "Total XP: %d  |  %d XP to next level" % [total_xp, xp_for_next]
-	xp_text.add_theme_font_size_override("font_size", 14)
+	xp_text.add_theme_font_size_override("font_size", 16)
 	xp_text.add_theme_color_override("font_color", ThemeManager.get_color("text_secondary"))
 	xp_vbox.add_child(xp_text)
 
@@ -139,7 +139,7 @@ func _refresh():
 		var label = Label.new()
 		label.text = day_name
 		label.custom_minimum_size = Vector2(50, 0)
-		label.add_theme_font_size_override("font_size", 14)
+		label.add_theme_font_size_override("font_size", 16)
 		label.add_theme_color_override("font_color", ThemeManager.get_color("text_secondary"))
 		row.add_child(label)
 

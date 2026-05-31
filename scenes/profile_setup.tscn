@@ -39,7 +39,7 @@ text = "Name"
 
 [node name="NameInput" type="LineEdit" parent="ScrollContainer/VBox"]
 layout_mode = 2
-custom_minimum_size = Vector2(0, 50)
+custom_minimum_size = Vector2(0, 60)
 placeholder_text = "Your name"
 
 [node name="AgeLabel" type="Label" parent="ScrollContainer/VBox"]
@@ -48,7 +48,7 @@ text = "Age"
 
 [node name="AgeInput" type="LineEdit" parent="ScrollContainer/VBox"]
 layout_mode = 2
-custom_minimum_size = Vector2(0, 50)
+custom_minimum_size = Vector2(0, 60)
 placeholder_text = "25"
 
 [node name="UnitLabel" type="Label" parent="ScrollContainer/VBox"]
@@ -57,7 +57,7 @@ text = "Units"
 
 [node name="UnitToggle" type="OptionButton" parent="ScrollContainer/VBox"]
 layout_mode = 2
-custom_minimum_size = Vector2(0, 50)
+custom_minimum_size = Vector2(0, 60)
 
 [node name="WeightLabel" type="Label" parent="ScrollContainer/VBox"]
 layout_mode = 2
@@ -65,7 +65,7 @@ text = "Weight (kg)"
 
 [node name="WeightInput" type="LineEdit" parent="ScrollContainer/VBox"]
 layout_mode = 2
-custom_minimum_size = Vector2(0, 50)
+custom_minimum_size = Vector2(0, 60)
 placeholder_text = "75"
 
 [node name="HeightLabel" type="Label" parent="ScrollContainer/VBox"]
@@ -74,7 +74,7 @@ text = "Height (cm)"
 
 [node name="HeightInput" type="LineEdit" parent="ScrollContainer/VBox"]
 layout_mode = 2
-custom_minimum_size = Vector2(0, 50)
+custom_minimum_size = Vector2(0, 60)
 placeholder_text = "175"
 
 [node name="GoalLabel" type="Label" parent="ScrollContainer/VBox"]
@@ -83,7 +83,7 @@ text = "Fitness Goal"
 
 [node name="GoalInput" type="LineEdit" parent="ScrollContainer/VBox"]
 layout_mode = 2
-custom_minimum_size = Vector2(0, 50)
+custom_minimum_size = Vector2(0, 60)
 placeholder_text = "Build muscle, lose fat, etc."
 
 [node name="ExperienceLabel" type="Label" parent="ScrollContainer/VBox"]
@@ -92,7 +92,7 @@ text = "Experience Level"
 
 [node name="ExperienceInput" type="LineEdit" parent="ScrollContainer/VBox"]
 layout_mode = 2
-custom_minimum_size = Vector2(0, 50)
+custom_minimum_size = Vector2(0, 60)
 placeholder_text = "beginner, intermediate, advanced"
 
 [node name="WorkoutsLabel" type="Label" parent="ScrollContainer/VBox"]
@@ -101,7 +101,7 @@ text = "Workouts per week"
 
 [node name="WorkoutsInput" type="LineEdit" parent="ScrollContainer/VBox"]
 layout_mode = 2
-custom_minimum_size = Vector2(0, 50)
+custom_minimum_size = Vector2(0, 60)
 placeholder_text = "3"
 
 [node name="ActivityLabel" type="Label" parent="ScrollContainer/VBox"]
@@ -110,7 +110,7 @@ text = "Activity Level"
 
 [node name="ActivityDropdown" type="OptionButton" parent="ScrollContainer/VBox"]
 layout_mode = 2
-custom_minimum_size = Vector2(0, 50)
+custom_minimum_size = Vector2(0, 60)
 
 [node name="CaloriesLabel" type="Label" parent="ScrollContainer/VBox"]
 layout_mode = 2
@@ -118,7 +118,7 @@ text = "Daily Calorie Target"
 
 [node name="CaloriesInput" type="LineEdit" parent="ScrollContainer/VBox"]
 layout_mode = 2
-custom_minimum_size = Vector2(0, 50)
+custom_minimum_size = Vector2(0, 60)
 placeholder_text = "2000"
 
 [node name="ProteinLabel" type="Label" parent="ScrollContainer/VBox"]
@@ -127,7 +127,7 @@ text = "Daily Protein Target (g)"
 
 [node name="ProteinInput" type="LineEdit" parent="ScrollContainer/VBox"]
 layout_mode = 2
-custom_minimum_size = Vector2(0, 50)
+custom_minimum_size = Vector2(0, 60)
 placeholder_text = "150"
 
 [node name="DurationLabel" type="Label" parent="ScrollContainer/VBox"]
@@ -136,7 +136,7 @@ text = "Preferred Workout Duration (min)"
 
 [node name="DurationInput" type="LineEdit" parent="ScrollContainer/VBox"]
 layout_mode = 2
-custom_minimum_size = Vector2(0, 50)
+custom_minimum_size = Vector2(0, 60)
 placeholder_text = "45"
 
 [node name="TrainingHeader" type="Label" parent="ScrollContainer/VBox"]
@@ -161,5 +161,5 @@ anchors_preset = 12
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_top = -70.0
+offset_top = -80.0
 text = "SAVE & CONTINUE"

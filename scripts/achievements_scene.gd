@@ -29,13 +29,13 @@ func _populate():
 		var name_label = Label.new()
 		name_label.text = a.get("name", "")
 		name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		name_label.add_theme_font_size_override("font_size", 14)
+		name_label.add_theme_font_size_override("font_size", 16)
 		name_label.autowrap_mode = TextServer.AUTOWRAP_WORD
 		
 		var desc_label = Label.new()
 		desc_label.text = a.get("description", "")
 		desc_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		desc_label.add_theme_font_size_override("font_size", 11)
+		desc_label.add_theme_font_size_override("font_size", 14)
 		desc_label.add_theme_color_override("font_color", ThemeManager.get_color("text_secondary"))
 		desc_label.autowrap_mode = TextServer.AUTOWRAP_WORD
 		

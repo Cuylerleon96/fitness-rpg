@@ -47,7 +47,7 @@ func _refresh():
 		
 		var desc = Label.new()
 		desc.text = r.get("description", "").substr(0, 80)
-		desc.add_theme_font_size_override("font_size", 14)
+		desc.add_theme_font_size_override("font_size", 16)
 		desc.add_theme_color_override("font_color", ThemeManager.get_color("text_secondary"))
 		desc.autowrap_mode = TextServer.AUTOWRAP_WORD
 		
@@ -55,7 +55,7 @@ func _refresh():
 		var ex_count = exercises.size() if exercises else 0
 		var meta = Label.new()
 		meta.text = "%d exercises | %s" % [ex_count, r.get("difficulty", "")]
-		meta.add_theme_font_size_override("font_size", 12)
+		meta.add_theme_font_size_override("font_size", 16)
 		meta.add_theme_color_override("font_color", ThemeManager.get_color("text_secondary") * Color(1, 1, 1, 0.6))
 		
 		info.add_child(name_label)

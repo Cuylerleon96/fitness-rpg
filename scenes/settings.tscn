@@ -49,7 +49,7 @@ text = "PROFILE"
 
 [node name="EditProfileBtn" type="Button" parent="ScrollContainer/VBox"]
 layout_mode = 2
-custom_minimum_size = Vector2(0, 50)
+custom_minimum_size = Vector2(0, 60)
 text = "Edit Profile"
 
 [node name="UnitsHeader" type="Label" parent="ScrollContainer/VBox"]
@@ -58,7 +58,7 @@ text = "UNITS"
 
 [node name="UnitToggle" type="OptionButton" parent="ScrollContainer/VBox"]
 layout_mode = 2
-custom_minimum_size = Vector2(0, 50)
+custom_minimum_size = Vector2(0, 60)
 
 [node name="ThemeHeader" type="Label" parent="ScrollContainer/VBox"]
 layout_mode = 2
@@ -74,7 +74,7 @@ text = "NOTIFICATIONS"
 
 [node name="ReminderToggle" type="CheckBox" parent="ScrollContainer/VBox"]
 layout_mode = 2
-custom_minimum_size = Vector2(0, 50)
+custom_minimum_size = Vector2(0, 60)
 text = "Workout Reminders"
 
 [node name="ReminderTimeLabel" type="Label" parent="ScrollContainer/VBox"]
@@ -87,7 +87,7 @@ text = "DATA"
 
 [node name="ResetBtn" type="Button" parent="ScrollContainer/VBox"]
 layout_mode = 2
-custom_minimum_size = Vector2(0, 50)
+custom_minimum_size = Vector2(0, 60)
 text = "Reset All Data"
 
 [node name="AboutHeader" type="Label" parent="ScrollContainer/VBox"]

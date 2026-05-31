@@ -75,7 +75,7 @@ func _on_next_month():
 func _render_month():
 	month_label.text = "%s %d" % [_month_name(current_month), current_year]
 	month_label.add_theme_color_override("font_color", ThemeManager.get_color("text_primary"))
-	month_label.add_theme_font_size_override("font_size", 22)
+	month_label.add_theme_font_size_override("font_size", 24)
 	month_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 
 	# Clear old day buttons

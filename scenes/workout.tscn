@@ -105,6 +105,7 @@ horizontal_alignment = 2
 [node name="SetsContainer" type="VBoxContainer" parent="."]
 layout_mode = 1
 anchors_preset = -1
+anchor_bottom = 1.0
 anchor_right = 1.0
 offset_left = 16.0
 offset_top = 410.0
@@ -124,11 +125,13 @@ offset_right = -16.0
 [node name="PrevBtn" type="Button" parent="NavButtons"]
 layout_mode = 2
 size_flags_horizontal = 3
+custom_minimum_size = Vector2(0, 60)
 text = "← Previous"
 
 [node name="NextBtn" type="Button" parent="NavButtons"]
 layout_mode = 2
 size_flags_horizontal = 3
+custom_minimum_size = Vector2(0, 60)
 text = "Next →"
 
 [node name="RestOverlay" type="Control" parent="."]
@@ -178,6 +181,7 @@ horizontal_alignment = 1
 
 [node name="SkipBtn" type="Button" parent="RestOverlay/RestVBox"]
 layout_mode = 2
+custom_minimum_size = Vector2(0, 60)
 text = "Skip Rest"
 
 [node name="FinishConfirmDialog" type="ConfirmationDialog" parent="."]
@@ -244,5 +248,6 @@ visible = false
 
 [node name="ContinueButton" type="Button" parent="FinishSummary/SummaryVBox"]
 layout_mode = 2
-custom_minimum_size = Vector2(200, 50)
+size_flags_horizontal = 3
+custom_minimum_size = Vector2(0, 60)
 text = "Continue"
